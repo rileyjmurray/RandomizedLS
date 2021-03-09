@@ -51,6 +51,18 @@ class TestLinSys(unittest.TestCase):
         delta = np.linalg.norm(x - x_star)
         self.assertLessEqual(delta, 1e-8)
 
+    def test_blendenpik(self):
+        np.random.seed(0)
+        n, m = 100, 10
+        d = 20
+        A = np.random.randn(n, m)
+        x0 = np.random.randn(m)
+        b0 = A @ x0
+        b = b0 + 0.05 * np.random.randn(n)
+        x_bp, residuals, (r, c) = linsys.blendenpik_srct(A, b, d, 1e-8, m//2)
+        x_np = np.linalg.lstsq(A, b)
+        self.assertAlmostEqual(np.linalg.norm(x_bp - x_bp), 0.0, 1e-4)
+
 
 class TestSketching(unittest.TestCase):
 

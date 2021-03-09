@@ -267,7 +267,7 @@ def srct_approx_chol(d, At, L, lowreg):
     cosine transform (an SRCT). Once we have S, we construct Aske = S @ At.T. The last
     step is to compute the lower-triangular Cholesky factor of a regularized Gram matrix
 
-        G = Aske.T @ Aske + reg * np.eye(n).
+        G = Aske.T @ Aske + reg * np.eye(m).
 
     The parameter "reg" is determined by "reg_cho_factor(Aske.T @ Aske, lowreg)".
 
@@ -289,11 +289,11 @@ def srct_approx_chol(d, At, L, lowreg):
     Returns
     -------
     L : ndarray
-        L.shape = (n, n). The lower-triangular part of L gives the desired preconditioner.
+        L.shape = (m, m). The lower-triangular part of L gives the desired preconditioner.
     reg : float
         Nonnegative; often zero. If "d" is chosen appropriately (e.g., d \approx m*log(m))
         then the matrix "L" should be a very good preconditioner for linear systems
-        of the form (At @ At.T + reg * np.eye(n)) @ x == b.
+        of the form (At @ At.T + reg * np.eye(m)) @ x == b.
     (r, e) : tuple of ndarray
         Defines the SRCT "S" used for sketching. See "apply_srct(r, e, mat)" for meaning.
 
@@ -365,10 +365,11 @@ def blendenpik_srct(A, b, d, tol, maxit):
         Define the SRCT used when sketching the matrix A.
     """
     n, m = A.shape  # n >> m
-    L = np.zeros(m)
-    L, reg, (r, e) = srct_approx_chol(d, A, L, 0.0)
+    L = np.zeros((m, m))
+    L, reg, (r, e) = srct_approx_chol(d, A.T, L, 0.0)
     rhs = A.T @ b
     x = np.zeros(m)
     residuals = -np.ones(maxit)
-    dense_pcg(A, rhs, x, L, tol, maxit, residuals, 0.0)
+    At = np.ascontiguousarray(A.T)
+    dense_pcg(At, rhs, x, L, tol, maxit, residuals, 0.0)
     return x, residuals, (r, e)
