@@ -10,7 +10,7 @@ from numpy.linalg import norm
 
 # Small Test For Choosing Condition Number of Test Matrix
 
-cond_num = 1e2
+cond_num = 1e5
 A, x, b = overdetermined_ls_test_matrix_generator(m=6000,
                                                   n=300,
                                                   theta=0,
@@ -46,18 +46,23 @@ print("\tThe flag is:", flag1)
 
 t2 = perf_counter()
 x2, iternum3, flag2, r1norm1, r2norm1, anorm1, acond1, arnorm1 = LSRN_over(A, b, tol=1e-14)[:8]
+# x2, iternum3, flag2 = LSRN_over(A, b, tol=1e-14)[:3]
 t3 = perf_counter() - t2
 r2 = b - A @ x2
 
 print("\nLSRN algorithm:")
-print("\tNormal Equation Error:", norm(A.transpose() @ r2) / (norm(A) * norm(r2)))
-print("\tResidual Error:", norm(r2) / norm(b))
-# print("\tError:", norm(x2 - x, ord=2) / norm(x, ord=2))
 print("\tR1norm:", r1norm1)
 print("\tR2norm:", r2norm1)
-print("\tAnorm:", anorm1)
-print("\tAcond:", acond1)
-print("\tArnorm:", arnorm1)
+print("\tEstimated Anorm:", norm(A))
+print("\tTrue Anorm:", anorm1)
+# print("\tAcond:", acond1)
+print("\tEstimated Arnorm:", norm(A.transpose() @ r2))
+print("\tTrue Arnorm:", arnorm1)
+print("\tEstimated Normal Equation Error:", norm(A.transpose() @ r2) / (norm(A) * norm(r2)))
+print("\tTrue Normal Equation Error:", arnorm1/(anorm1*r1norm1))
+print("\tEstimated Residual Error:", norm(r2) / norm(b))
+print("\tTrue Residual Error:", r1norm1 / norm(b))
+# print("\tRelative Error:", norm(x2 - x, ord=2) / norm(x, ord=2))
 print("\tComputational time (sec.):", t3)
 print("\tThe iteration number is:", iternum3)
 print("\tThe flag is:", flag2)

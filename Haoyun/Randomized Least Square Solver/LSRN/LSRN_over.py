@@ -84,20 +84,21 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
         cond_AN = (sqrt(gamma_new) + 1) / (sqrt(gamma_new) - 1)
 
         AN = LinearOperator(shape=(m, r), matvec=LSRN_matvec, rmatvec=LSRN_rmatvec)
-        result = lsqr(AN, b, atol=tol/cond_AN, btol=tol/cond_AN, iter_lim=iter_lim)[:8]
+        result = lsqr(AN, b, atol=tol / cond_AN, btol=tol / cond_AN, iter_lim=iter_lim)[:8]
 
         y = result[0]
         flag = result[1]
         itn = result[2]
-        r1norm = result[3]
-        r2norm = result[4]
-        anorm = result[5]
-        acond = result[6]
-        arnorm = result[7]
+        # r1norm = result[3]
+        # r2norm = result[4]
+        # anorm = result[5]
+        # acond = result[6]
+        # arnorm = result[7]
 
         x = N.dot(y)
     else:
 
         print("The under-determined case is not implemented.")
 
-    return x, itn, flag, r1norm, r2norm, anorm, acond, arnorm, r
+    # return x, itn, flag, r1norm, r2norm, anorm, acond, arnorm, r
+    return x, itn, flag, r

@@ -219,7 +219,7 @@ sns.heatmap(np.log10(Naive_LSQR_relative_error_matrix), xticklabels=m_div_1000_l
 plt.title('Heat map of residual error of Naive LSQR')
 plt.xlabel('m/1000')
 plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Relative Error/Naive LSQR HeatMap Relative Error.png')
+plt.savefig('HeatMap/Matrix Size/Residual Error/Naive LSQR HeatMap Residual Error.png')
 plt.show()
 
 # The heat heap of averaged relative error of LSRN of five randomized m * m/20 matrix.
@@ -230,7 +230,7 @@ sns.heatmap(np.log10(LSRN_relative_error_matrix), xticklabels=m_div_1000_list,
 plt.title('Heat map of residual error of LSRN')
 plt.xlabel('m/1000')
 plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Relative Error/LSRN HeatMap Relative Error.png')
+plt.savefig('HeatMap/Matrix Size/Residual Error/LSRN HeatMap Residual Error.png')
 plt.show()
 
 # The heat heap of averaged relative error of Riley's Blendenpik of five randomized m * m/20 matrix.
@@ -241,7 +241,7 @@ sns.heatmap(np.log10(Riley_Blen_relative_error_matrix), xticklabels=m_div_1000_l
 plt.title('Heat map of residual error of Riley Blendenpik')
 plt.xlabel('m/1000')
 plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Relative Error/Riley Blen HeatMap Relative Error.png')
+plt.savefig('HeatMap/Matrix Size/Residual Error/Riley Blen HeatMap Residual Error.png')
 plt.show()
 
 
@@ -257,7 +257,7 @@ plt.plot(log10_cond_num_list, Naive_LSQR_iternum_matrix[:, -1], 'g:', label='Nai
 plt.plot(log10_cond_num_list, Riley_Blen_iternum_matrix[:, -1], 'b', label='Riley Blendenpik')
 plt.plot(log10_cond_num_list, LSRN_iternum_matrix[:, -1], 'k-.', label='LSRN')
 plt.xlabel('log10(condition number)')
-plt.ylabel('Iteration Number')
+plt.ylabel('iteration number')
 plt.title('Iteration Number of 6000 * 300 Randomized Matrices')
 plt.legend(loc='best', shadow=True)
 plt.savefig('2D Plot/Matrix Size/Iteration Number/Fixed Dimension.png')
@@ -270,7 +270,7 @@ plt.plot(m_div_1000_list, np.log10(Naive_LSQR_iternum_matrix[-1, :]), 'g:', labe
 plt.plot(m_div_1000_list, np.log10(Riley_Blen_iternum_matrix[-1, :]), 'b', label='Riley Blendenpik')
 plt.plot(m_div_1000_list, np.log10(LSRN_iternum_matrix[-1, :]), 'k-.', label='LSRN')
 plt.xlabel('m/1000')
-plt.ylabel('log10(Iteration Number)')
+plt.ylabel('log10(iteration number)')
 plt.title('Iteration Number of m * m/20 Randomized Matrices(Cond 1e5)')
 plt.legend(loc='best', shadow=True)
 plt.savefig('2D Plot/Matrix Size/Iteration Number/Fixed Condition number.png')
@@ -311,10 +311,10 @@ plt.plot(log10_cond_num_list, np.log10(Naive_LSQR_relative_error_matrix[:, -1]),
 plt.plot(log10_cond_num_list, np.log10(Riley_Blen_relative_error_matrix[:, -1]), 'b', label='Riley Blendenpik')
 plt.plot(log10_cond_num_list, np.log10(LSRN_relative_error_matrix[:, -1]), 'k-.', label='LSRN')
 plt.xlabel('log10(condition number)')
-plt.ylabel('log10(relative error)')
+plt.ylabel('log10(residual error)')
 plt.title('Residual Error of 6000 * 300 Randomized Matrices')
 plt.legend(loc='best', shadow=True)
-plt.savefig('2D Plot/Matrix Size/Relative Error/Fixed Dimension.png')
+plt.savefig('2D Plot/Matrix Size/Residual Error/Fixed Dimension.png')
 plt.show()
 
 # Plot of normal equation error of different algorithms versus m/1000
@@ -324,8 +324,8 @@ plt.plot(m_div_1000_list, np.log10(Naive_LSQR_relative_error_matrix[-1, :]), 'g:
 plt.plot(m_div_1000_list, np.log10(Riley_Blen_relative_error_matrix[-1, :]), 'b', label='Riley Blendenpik')
 plt.plot(m_div_1000_list, np.log10(LSRN_relative_error_matrix[-1, :]), 'k-.', label='LSRN')
 plt.xlabel('m/1000')
-plt.ylabel('log10(relative error)')
+plt.ylabel('log10(residual error)')
 plt.title('Residual Error of m * m/20 Randomized Matrices(Cond 1e5)')
 plt.legend(loc='best', shadow=True)
-plt.savefig('2D Plot/Matrix Size/Relative Error/Fixed Condition number.png')
+plt.savefig('2D Plot/Matrix Size/Residual Error/Fixed Condition number.png')
 plt.show()

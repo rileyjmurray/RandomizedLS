@@ -212,7 +212,7 @@ sns.heatmap(np.log10(Naive_LSQR_relative_error_matrix), xticklabels=np.round(np.
 plt.title('Heat map of relative error of Naive LSQR')
 plt.xlabel('log2(pi/2-theta)')
 plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Theta/Relative Error/Naive LSQR HeatMap Relative Error.png')
+plt.savefig('HeatMap/Theta/Residual Error/Naive LSQR HeatMap Residual Error.png')
 plt.show()
 
 # The heat heap of averaged relative error of LSRN of five randomized m * m/20 matrix.
@@ -223,7 +223,7 @@ sns.heatmap(np.log10(LSRN_relative_error_matrix), xticklabels=np.round(np.log2(t
 plt.title('Heat map of relative error of LSRN')
 plt.xlabel('log2(pi/2-theta)')
 plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Theta/Relative Error/LSRN HeatMap Relative Error.png')
+plt.savefig('HeatMap/Theta/Residual Error/LSRN HeatMap Residual Error.png')
 plt.show()
 
 # The heat heap of averaged relative error of Riley's Blendenpik of five randomized m * m/20 matrix.
@@ -234,7 +234,7 @@ sns.heatmap(np.log10(Riley_Blen_relative_error_matrix), xticklabels=np.round(np.
 plt.title('Heat map of relative error of Riley Blendenpik')
 plt.xlabel('log2(pi/2-theta)')
 plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Theta/Relative Error/Riley Blen HeatMap Relative Error.png')
+plt.savefig('HeatMap/Theta/Residual Error/Riley Blen HeatMap Residual Error.png')
 plt.show()
 
 ##################
@@ -249,7 +249,7 @@ plt.plot(log10_cond_num_list, Naive_LSQR_iternum_matrix[:, -1], 'g:', label='Nai
 plt.plot(log10_cond_num_list, Riley_Blen_iternum_matrix[:, -1], 'b', label='Riley Blendenpik')
 plt.plot(log10_cond_num_list, LSRN_iternum_matrix[:, -1], 'k-.', label='LSRN')
 plt.xlabel('log10(condition number)')
-plt.ylabel('Iteration Number')
+plt.ylabel('iteration number')
 plt.title('Iteration Number of 6000 * 300 Randomized Matrices(Theta=pi/2-1)')
 plt.legend(loc='best', shadow=True)
 plt.savefig('2D Plot/Theta/Iteration Number/Fixed Dimension.png')
@@ -263,7 +263,7 @@ plt.plot(log2_theta_list, np.log10(Naive_LSQR_iternum_matrix[-1, :]), 'g:', labe
 plt.plot(log2_theta_list, np.log10(Riley_Blen_iternum_matrix[-1, :]), 'b', label='Riley Blendenpik')
 plt.plot(log2_theta_list, np.log10(LSRN_iternum_matrix[-1, :]), 'k-.', label='LSRN')
 plt.xlabel('log2(pi/2-theta)')
-plt.ylabel('log(Iteration Number)')
+plt.ylabel('log(iteration number)')
 plt.title('Iteration Number of 6000 * 300 Randomized Matrices(Cond 1e5)')
 plt.legend(loc='best', shadow=True)
 plt.savefig('2D Plot/Theta/Iteration Number/Fixed Condition number.png')
@@ -305,10 +305,10 @@ plt.plot(log2_theta_list, np.log10(Naive_LSQR_relative_error_matrix[-1, :]), 'g:
 plt.plot(log2_theta_list, np.log10(Riley_Blen_relative_error_matrix[-1, :]), 'b', label='Riley Blendenpik')
 plt.plot(log2_theta_list, np.log10(LSRN_relative_error_matrix[-1, :]), 'k-.', label='LSRN')
 plt.xlabel('log2(pi/2-theta)')
-plt.ylabel('log10(relative error)')
+plt.ylabel('log10(residual error)')
 plt.title('Relative Error of 6000 * 300 Randomized Matrices(Cond 1e5)')
 plt.legend(loc='best', shadow=True)
-plt.savefig('2D Plot/Theta/Relative Error/Fixed Condition number.png')
+plt.savefig('2D Plot/Theta/Residual Error/Fixed Condition number.png')
 plt.show()
 
 # Plots of relative error of different algorithms versus log10(condition number)
@@ -319,8 +319,8 @@ plt.plot(log10_cond_num_list, np.log10(Naive_LSQR_relative_error_matrix[:, -1]),
 plt.plot(log10_cond_num_list, np.log10(Riley_Blen_relative_error_matrix[:, -1]), 'b', label='Riley Blendenpik')
 plt.plot(log10_cond_num_list, np.log10(LSRN_relative_error_matrix[:, -1]), 'k-.', label='LSRN')
 plt.xlabel('log10(condition number)')
-plt.ylabel('log10(relative error)')
+plt.ylabel('log10(residual error)')
 plt.title('Relative Error of 6000 * 300 Randomized Matrices(Theta=pi/2-1)')
 plt.legend(loc='best', shadow=True)
-plt.savefig('2D Plot/Theta/Relative Error/Fixed Dimension.png')
+plt.savefig('2D Plot/Theta/Residual Error/Fixed Dimension.png')
 plt.show()
