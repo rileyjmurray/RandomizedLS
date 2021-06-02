@@ -130,7 +130,7 @@ def overdetermined_ls_test_matrix_generator(m, n, theta, seednum=123, diagonal=N
     #     theta = (math.pi / 2) - theta
 
     # Calculate final b
-    b = (b_1 * math.sin(theta)) + (b_2 * math.cos(theta))
+    b = (b_1 * math.cos(theta)) + (b_2 * math.sin(theta))
 
     # Calculate true x
     # x = lsqr(A, b, atol=1e-14, btol=1e-14)[0]

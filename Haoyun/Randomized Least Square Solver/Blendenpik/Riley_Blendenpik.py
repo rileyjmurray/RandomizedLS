@@ -35,7 +35,7 @@ def py_cho_solve(L, rhs, soln):
         for j in range(i):
             num -= L[i, j] * soln[j]
         soln[i] = num / L[i, i]
-    for ic in range(1, n+1):
+    for ic in range(1, n + 1):
         i = n - ic
         num = soln[i]
         for jc in range(1, ic):
@@ -154,7 +154,7 @@ def reg_cho_factor(mat, lowreg):
                                        overwrite_a=False, check_finite=False)[0]
             success = True
         except np.linalg.LinAlgError as err:
-            reg = lowreg * 10.0**it
+            reg = lowreg * 10.0 ** it
         if success:
             break
         else:
@@ -189,6 +189,7 @@ def sparse_pcg(At, rhs, y, L, tol, maxit):
     -------
     nothing
     """
+
     def apply_precond(z):
         x = sp.linalg.cho_solve((L, True), z)
         return x
@@ -197,6 +198,7 @@ def sparse_pcg(At, rhs, y, L, tol, maxit):
         x = At.T @ z
         x = At @ x
         return x
+
     AtA = sparla.LinearOperator(shape=L.shape, matvec=apply_AtA)
     precond = sparla.LinearOperator(shape=L.shape, matvec=apply_precond)
     res, status = sparla.cg(AtA, rhs, tol=tol, maxiter=maxit, M=precond)

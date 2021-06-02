@@ -5,15 +5,17 @@ from scipy.sparse.linalg import lsqr
 from LSRN.LSRN_over import LSRN_over
 import numpy as np
 from Blendenpik.Riley_Blendenpik import blendenpik_srct
+from Blendenpik.Riley_Blen_Scipy_LSQR import blendenpik_srct_scipy_lsqr
+from numpy.linalg import norm
 
 # Small Test For Choosing Condition Number of Test Matrix
 
-cond_num = 1000000
-A, x, b = overdetermined_ls_test_matrix_generator(m=4000,
-                                                  n=200,
-                                                  theta=2**-1,
-                                                  seednum=123,
-                                                  fill_diagonal_method='arithmetic',
+cond_num = 1e2
+A, x, b = overdetermined_ls_test_matrix_generator(m=6000,
+                                                  n=300,
+                                                  theta=0,
+                                                  seednum=345,
+                                                  fill_diagonal_method='geometric',
                                                   condition_number=cond_num)
 x = x.ravel()
 b = b.ravel()
@@ -30,35 +32,45 @@ b = b.ravel()
 # print("\tThe iteration number is:", iternum1)
 
 t10 = perf_counter()
-total2 = lsqr(A, b, atol=1e-14, btol=1e-14)
-x6 = total2[0]
-iternum2 = total2[2]
+x6, flag1, iternum2 = lsqr(A, b, atol=1e-14, btol=1e-14, iter_lim=1000)[:3]
 t11 = perf_counter() - t10
-print("\nNaive LSQR Without Preconding:")
-print("\tNormal Equation:", np.linalg.norm(A.transpose() @ A @ x6 - A.transpose() @ b, ord=2))
-print("\tResidual (L2-norm):", np.linalg.norm(A @ x6 - b, ord=2))
-print("\tError:", np.linalg.norm(x6 - x, ord=2) / np.linalg.norm(x, ord=2))
+r1 = b - A @ x6
+
+print("\nNaive LSQR Without Preconditioning:")
+print("\tNormal Equation Error:", norm(A.transpose() @ r1) / (norm(A) * norm(r1)))
+print("\tResidual Error:", norm(r1) / norm(b))
+# print("\tError:", norm(x6 - x) / norm(x))
 print("\tComputational time (sec.):", t11)
 print("\tThe iteration number is:", iternum2)
+print("\tThe flag is:", flag1)
 
 t2 = perf_counter()
-x2, iternum3 = LSRN_over(A, b, tol=1e-14)[:2]
+x2, iternum3, flag2, r1norm1, r2norm1, anorm1, acond1, arnorm1 = LSRN_over(A, b, tol=1e-14)[:8]
 t3 = perf_counter() - t2
+r2 = b - A @ x2
+
 print("\nLSRN algorithm:")
-print("\tNormal Equation:", np.linalg.norm(A.transpose() @ A @ x2 - A.transpose() @ b, ord=2))
-print("\tResidual (L2-norm):", np.linalg.norm(A @ x2 - b, ord=2))
-print("\tError:", np.linalg.norm(x2 - x, ord=2) / np.linalg.norm(x, ord=2))
+print("\tNormal Equation Error:", norm(A.transpose() @ r2) / (norm(A) * norm(r2)))
+print("\tResidual Error:", norm(r2) / norm(b))
+# print("\tError:", norm(x2 - x, ord=2) / norm(x, ord=2))
+print("\tR1norm:", r1norm1)
+print("\tR2norm:", r2norm1)
+print("\tAnorm:", anorm1)
+print("\tAcond:", acond1)
+print("\tArnorm:", arnorm1)
 print("\tComputational time (sec.):", t3)
 print("\tThe iteration number is:", iternum3)
+print("\tThe flag is:", flag2)
 
-# t4 = perf_counter()
-# x3 = np.linalg.lstsq(A, b, rcond=None)[0]
-# t5 = perf_counter() - t4
-# print("\nNumPy least-squares algorithm:")
-# print("\tNormal Equation:", np.linalg.norm(A.transpose() @ A @ x3 - A.transpose() @ b, ord=2))
-# print("\tResidual (L2-norm):", np.linalg.norm(A @ x3 - b, ord=2))
-# print("\tError:", np.linalg.norm(x3 - x, ord=2) / np.linalg.norm(x, ord=2))
-# print("\tComputational time (sec.):", t5)
+t4 = perf_counter()
+x3 = np.linalg.lstsq(A, b, rcond=None)[0]
+t5 = perf_counter() - t4
+r3 = b - A @ x3
+print("\nNumPy least-squares algorithm:")
+print("\tNormal Equation Error:", norm(A.transpose() @ r3) / (norm(A) * norm(r3)))
+print("\tResidual Error:", norm(r3) / norm(b))
+# print("\tError:", norm(x3 - x, ord=2) / norm(x, ord=2))
+print("\tComputational time (sec.):", t5)
 
 # t6 = perf_counter()
 # x4 = CS(A, b)
@@ -73,11 +85,30 @@ t8 = perf_counter()
 multiplier = 2
 d = multiplier * A.shape[1]
 tol = 1e-14
+
 x5, res, (r, e) = blendenpik_srct(A, b, d, tol, 1000)
 t9 = perf_counter() - t8
+r4 = b - A @ x5
+
 print("\nRiley's Blendenpik:")
-print("\tNormal Equation:", np.linalg.norm(A.transpose() @ A @ x5 - A.transpose() @ b, ord=2))
-print("\tResidual (L2-norm):", np.linalg.norm(A @ x5 - b, ord=2))
-print("\tError:", np.linalg.norm(x5 - x, ord=2) / np.linalg.norm(x, ord=2))
+print("\tNormal Equation Error:", norm(A.transpose() @ r4) / (norm(A) * norm(r4)))
+print("\tResidual Error:", norm(r4) / norm(b))
+# print("\tError:", norm(x5 - x, ord=2) / norm(x, ord=2))
 print("\tComputational time (sec.):", t9)
 print("\tIteration number: ", np.count_nonzero(res > -1))
+
+# t8 = perf_counter()
+# multiplier = 2
+# d = multiplier * A.shape[1]
+# tol = 1e-14
+# x5, flag3, iternum4, (r, e) = blendenpik_srct_scipy_lsqr(A, b, d, tol, 1000)
+# t9 = perf_counter() - t8
+# r4 = b - A @ x5
+#
+# print("\nRiley's Blendenpik:")
+# print("\tNormal Equation Error:", norm(A.transpose() @ r4) / (norm(A) * norm(r4)))
+# print("\tResidual Error:", norm(r4) / norm(b))
+# # print("\tError:", norm(x5 - x, ord=2) / norm(x, ord=2))
+# print("\tComputational time (sec.):", t9)
+# print("\tIteration number: ", iternum4)
+# print("\tThe flag is:", flag3)
