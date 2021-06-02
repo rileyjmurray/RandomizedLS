@@ -4,15 +4,15 @@ import numpy as np
 from numpy.linalg import norm
 from scipy.sparse.linalg import lsqr
 
-from Blendenpik.Riley_Blendenpik import blendenpik_srct
-from LSRN.LSRN_over import LSRN_over
-from Test.test_matrix_generator import overdetermined_ls_test_matrix_generator
+from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik import blendenpik_srct
+from Haoyun.randomized_least_square_solver.LSRN.LSRN_over import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.test_matrix_generator import overdetermined_ls_test_matrix_generator
 
 import seaborn as sns
 import matplotlib.pyplot as plt
 
 # cond_num_list = 10 ** np.arange(6)
-cond_num_list = 10 ** np.linspace(0, 16, 6)
+cond_num_list = 10 ** np.linspace(6, 16, 3)
 theta_list = 2 ** (-np.linspace(53, 0, 6))
 
 cond_len = len(cond_num_list)
@@ -37,7 +37,7 @@ Riley_Blen_time_matrix = np.zeros((cond_len, theta_list_len))
 Riley_Blen_normal_equation_error_matrix = np.zeros((cond_len, theta_list_len))
 Riley_Blen_relative_error_matrix = np.zeros((cond_len, theta_list_len))
 
-matrix_num = 5
+matrix_num = 1
 
 for cond_num_index in np.arange(cond_len):
     cond_num = cond_num_list[cond_num_index]
@@ -76,7 +76,7 @@ for cond_num_index in np.arange(cond_len):
             # ) @ b2,ord =2) + np.linalg.norm(A3.transpose() @ A3 @ x1_3 - A3.transpose() @ b3,ord =2)) / 3
 
             # print("Blendenpik algorithm:")
-            # print("\tNormal Equation:", np.linalg.norm(A.transpose() @ A @ x1 - A.transpose() @ b,ord =2))
+            # print("\tNormal Equation:", np.linalg.norm(A.T @ A @ x1 - A.T @ b,ord =2))
             # print("\tResidual (L2-norm):", np.linalg.norm(A @ x1 - b,ord =2))
             # print("\tError:", np.linalg.norm(x1 - x,ord =2)/np.linalg.norm(x,ord =2))
             # print("\tComputational time (sec.):", t1)
@@ -93,7 +93,7 @@ for cond_num_index in np.arange(cond_len):
             Naive_LSQR_iternum_matrix[cond_num_index, theta_index] += iternum2
             Naive_LSQR_time_matrix[cond_num_index, theta_index] += t11
             Naive_LSQR_normal_equation_error_matrix[cond_num_index, theta_index] += np.linalg.norm(
-                A.transpose() @ A @ x6 - A.transpose() @ b, ord=2)
+                A.T @ (A @ x6) - A.T @ b, ord=2)
             Naive_LSQR_relative_error_matrix[cond_num_index, theta_index] += \
                 np.linalg.norm(x6 - x, ord=2) / np.linalg.norm(x, ord=2)
 
@@ -105,7 +105,7 @@ for cond_num_index in np.arange(cond_len):
             LSRN_iternum_matrix[cond_num_index, theta_index] += iternum3
             LSRN_time_matrix[cond_num_index, theta_index] += t3
             LSRN_normal_equation_error_matrix[cond_num_index, theta_index] += np.linalg.norm(
-                A.transpose() @ A @ x2 - A.transpose() @ b, ord=2)
+                A.T @ (A @ x2) - A.T @ b, ord=2)
             LSRN_relative_error_matrix[cond_num_index, theta_index] += \
                 np.linalg.norm(x2 - x, ord=2) / np.linalg.norm(x, ord=2)
 
@@ -121,7 +121,7 @@ for cond_num_index in np.arange(cond_len):
             Riley_Blen_iternum_matrix[cond_num_index, theta_index] += np.count_nonzero(res > -1)
             Riley_Blen_time_matrix[cond_num_index, theta_index] += t9
             Riley_Blen_normal_equation_error_matrix[cond_num_index, theta_index] += np.linalg.norm(
-                A.transpose() @ A @ x5 - A.transpose() @ b, ord=2)
+                A.T @ (A @ x5) - A.T @ b, ord=2)
             Riley_Blen_relative_error_matrix[cond_num_index, theta_index] += \
                 np.linalg.norm(x5 - x, ord=2) / np.linalg.norm(x, ord=2)
 

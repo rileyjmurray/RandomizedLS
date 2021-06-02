@@ -53,15 +53,29 @@ class TestLinSys(unittest.TestCase):
 
     def test_blendenpik(self):
         np.random.seed(0)
-        n, m = 100, 10
-        d = 20
+        n, m = 400, 25
+        d = 3*m
         A = np.random.randn(n, m)
         x0 = np.random.randn(m)
         b0 = A @ x0
         b = b0 + 0.05 * np.random.randn(n)
-        x_bp, residuals, (r, c) = linsys.blendenpik_srct(A, b, d, 1e-8, m//2)
-        x_np = np.linalg.lstsq(A, b)
-        self.assertAlmostEqual(np.linalg.norm(x_bp - x_bp), 0.0, 1e-4)
+        x_bp, residuals, (r, c) = linsys.blendenpik_srct(A, b, d, 1e-8, m)
+        print(np.count_nonzero(residuals > -1) / m)
+        x_np = np.linalg.lstsq(A, b)[0]
+        self.assertAlmostEqual(np.linalg.norm(x_bp - x_np), 0.0, places=4)
+
+    def test_blendenpik_lsqr(self):
+        np.random.seed(0)
+        n, m = 400, 25
+        d = 3 * m
+        A = np.random.randn(n, m)
+        x0 = np.random.randn(m)
+        b0 = A @ x0
+        b = b0 + 0.05 * np.random.randn(n)
+        x_bp, flag, iternum, (r, e) = linsys.blendenpik_srct_scipy_lsqr(A, b, d, 1e-8, m)
+        print(iternum / m)
+        x_np = np.linalg.lstsq(A, b)[0]
+        self.assertAlmostEqual(np.linalg.norm(x_bp - x_np), 0.0, places=4)
 
 
 class TestSketching(unittest.TestCase):
