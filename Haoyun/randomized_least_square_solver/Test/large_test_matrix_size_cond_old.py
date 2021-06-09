@@ -90,25 +90,25 @@ for cond_num_index in np.arange(cond_len):
             x6 = total2[0]
             iternum2 = total2[2]
             t11 = perf_counter() - t10
-            r1 = b - A @ x6
 
             Naive_LSQR_iternum_matrix[cond_num_index, m_div_1000_index] += iternum2
             Naive_LSQR_time_matrix[cond_num_index, m_div_1000_index] += t11
-            Naive_LSQR_normal_equation_error_matrix[cond_num_index, m_div_1000_index] \
-                += norm(A.transpose() @ r1) / (norm(A) * norm(r1))
-            Naive_LSQR_relative_error_matrix[cond_num_index, m_div_1000_index] += norm(r1) / norm(b)
+            Naive_LSQR_normal_equation_error_matrix[cond_num_index, m_div_1000_index] += np.linalg.norm(
+                A.transpose() @ A @ x6 - A.transpose() @ b, ord=2)
+            Naive_LSQR_relative_error_matrix[cond_num_index, m_div_1000_index] += \
+                np.linalg.norm(x6 - x, ord=2) / np.linalg.norm(x, ord=2)
 
             # LSRN
             t2 = perf_counter()
             x2, iternum3 = LSRN_over(A, b, tol=1e-14, iter_lim=2000)[:2]
             t3 = perf_counter() - t2
-            r2 = b - A @ x2
 
             LSRN_iternum_matrix[cond_num_index, m_div_1000_index] += iternum3
             LSRN_time_matrix[cond_num_index, m_div_1000_index] += t3
-            LSRN_normal_equation_error_matrix[cond_num_index, m_div_1000_index] \
-                += norm(A.transpose() @ r2) / (norm(A) * norm(r2))
-            LSRN_relative_error_matrix[cond_num_index, m_div_1000_index] += norm(r2) / norm(b)
+            LSRN_normal_equation_error_matrix[cond_num_index, m_div_1000_index] += np.linalg.norm(
+                A.transpose() @ A @ x2 - A.transpose() @ b, ord=2)
+            LSRN_relative_error_matrix[cond_num_index, m_div_1000_index] += \
+                np.linalg.norm(x2 - x, ord=2) / np.linalg.norm(x, ord=2)
 
             # Riley's Blendenpik
             multiplier = 2
@@ -118,13 +118,13 @@ for cond_num_index in np.arange(cond_len):
             t8 = perf_counter()
             x5, flag3, iternum4, (r, e) = blendenpik_srct_scipy_lsqr(A, b, d, tol, 1000)
             t9 = perf_counter() - t8
-            r3 = b - A @ x5
 
-            Riley_Blen_iternum_matrix[cond_num_index, m_div_1000_index] += np.count_nonzero(res > -1)
+            Riley_Blen_iternum_matrix[cond_num_index, m_div_1000_index] += iternum4
             Riley_Blen_time_matrix[cond_num_index, m_div_1000_index] += t9
-            Riley_Blen_normal_equation_error_matrix[cond_num_index, m_div_1000_index] \
-                += norm(A.transpose() @ r3) / (norm(A) * norm(r3))
-            Riley_Blen_relative_error_matrix[cond_num_index, m_div_1000_index] += norm(r3) / norm(b)
+            Riley_Blen_normal_equation_error_matrix[cond_num_index, m_div_1000_index] += np.linalg.norm(
+                A.transpose() @ A @ x5 - A.transpose() @ b, ord=2)
+            Riley_Blen_relative_error_matrix[cond_num_index, m_div_1000_index] += \
+                np.linalg.norm(x5 - x, ord=2) / np.linalg.norm(x, ord=2)
 
         Naive_LSQR_iternum_matrix[cond_num_index, m_div_1000_index] /= matrix_num
         Naive_LSQR_time_matrix[cond_num_index, m_div_1000_index] /= matrix_num
@@ -216,10 +216,10 @@ plt.show()
 
 sns.heatmap(np.log10(Naive_LSQR_relative_error_matrix), xticklabels=m_div_1000_list,
             yticklabels=np.round(np.log10(cond_num_list), 1))
-plt.title('Heat map of residual error of Naive LSQR')
+plt.title('Heat map of relative error of Naive LSQR')
 plt.xlabel('m/1000')
 plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Residual Error/Naive LSQR HeatMap Residual Error.png')
+plt.savefig('HeatMap/Matrix Size/Relative Error/Naive LSQR HeatMap Relative Error.png')
 plt.show()
 
 # The heat heap of averaged relative error of LSRN of five randomized m * m/20 matrix.
@@ -227,10 +227,10 @@ plt.show()
 
 sns.heatmap(np.log10(LSRN_relative_error_matrix), xticklabels=m_div_1000_list,
             yticklabels=np.round(np.log10(cond_num_list), 1))
-plt.title('Heat map of residual error of LSRN')
+plt.title('Heat map of relative error of LSRN')
 plt.xlabel('m/1000')
 plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Residual Error/LSRN HeatMap Residual Error.png')
+plt.savefig('HeatMap/Matrix Size/Relative Error/LSRN HeatMap Relative Error.png')
 plt.show()
 
 # The heat heap of averaged relative error of Riley's Blendenpik of five randomized m * m/20 matrix.
@@ -238,18 +238,17 @@ plt.show()
 
 sns.heatmap(np.log10(Riley_Blen_relative_error_matrix), xticklabels=m_div_1000_list,
             yticklabels=np.round(np.log10(cond_num_list), 1))
-plt.title('Heat map of residual error of Riley Blendenpik')
+plt.title('Heat map of relative error of Riley Blendenpik')
 plt.xlabel('m/1000')
 plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Residual Error/Riley Blen HeatMap Residual Error.png')
+plt.savefig('HeatMap/Matrix Size/Relative Error/Riley Blen HeatMap Relative Error.png')
 plt.show()
-
 
 ##################
 #### 2D Plot #####
 ##################
 
-# Plot of iternation numbers of different algorithms versus log10(condition number)
+# Plot of iteration numbers of different algorithms versus log10(condition number)
 
 log10_cond_num_list = np.log10(cond_num_list)
 # plt.plot(log10_cond_num, Blendenpik_iternum_list,'r--', label = 'My Blendenpik')
@@ -263,7 +262,7 @@ plt.legend(loc='best', shadow=True)
 plt.savefig('2D Plot/Matrix Size/Iteration Number/Fixed Dimension.png')
 plt.show()
 
-# Plot of iternation numbers of different algorithms versus m/1000
+# Plot of iteration numbers of different algorithms versus m/1000
 
 # plt.plot(m_div_100_list, Blendenpik_iternum_list,'r--', label = 'My Blendenpik')
 plt.plot(m_div_1000_list, np.log10(Naive_LSQR_iternum_matrix[-1, :]), 'g:', label='Naive LSQR')
@@ -312,12 +311,12 @@ plt.plot(log10_cond_num_list, np.log10(Riley_Blen_relative_error_matrix[:, -1]),
 plt.plot(log10_cond_num_list, np.log10(LSRN_relative_error_matrix[:, -1]), 'k-.', label='LSRN')
 plt.xlabel('log10(condition number)')
 plt.ylabel('log10(residual error)')
-plt.title('Residual Error of 6000 * 300 Randomized Matrices')
+plt.title('Relative Error of 6000 * 300 Randomized Matrices')
 plt.legend(loc='best', shadow=True)
-plt.savefig('2D Plot/Matrix Size/Residual Error/Fixed Dimension.png')
+plt.savefig('2D Plot/Matrix Size/Relative Error/Fixed Dimension.png')
 plt.show()
 
-# Plot of normal equation error of different algorithms versus m/1000
+# Plot of relative error of different algorithms versus m/1000
 
 # plt.plot(m_div_100_list, Blendenpik_iternum_list,'r--', label = 'My Blendenpik')
 plt.plot(m_div_1000_list, np.log10(Naive_LSQR_relative_error_matrix[-1, :]), 'g:', label='Naive LSQR')
@@ -325,7 +324,7 @@ plt.plot(m_div_1000_list, np.log10(Riley_Blen_relative_error_matrix[-1, :]), 'b'
 plt.plot(m_div_1000_list, np.log10(LSRN_relative_error_matrix[-1, :]), 'k-.', label='LSRN')
 plt.xlabel('m/1000')
 plt.ylabel('log10(residual error)')
-plt.title('Residual Error of m * m/20 Randomized Matrices(Cond 1e5)')
+plt.title('Relative Error of m * m/20 Randomized Matrices(Cond 1e5)')
 plt.legend(loc='best', shadow=True)
-plt.savefig('2D Plot/Matrix Size/Residual Error/Fixed Condition number.png')
+plt.savefig('2D Plot/Matrix Size/Relative Error/Fixed Condition number.png')
 plt.show()

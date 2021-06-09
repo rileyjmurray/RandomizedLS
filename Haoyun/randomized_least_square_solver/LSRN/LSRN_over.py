@@ -69,7 +69,7 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
         # print(r_tol)
         r = np.sum(Sigma_tilde > r_tol)
         # print(Sigma_tilde)
-        print('\t Dropped rank by %s' % (n - r))
+        # print('\t Dropped rank by %s' % (n - r))
         N = VH_tilde[:r, :].T / Sigma_tilde[:r]
 
         def LSRN_matvec(v):
@@ -84,7 +84,7 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
         cond_AN = (sqrt(gamma_new) + 1) / (sqrt(gamma_new) - 1)
 
         AN = LinearOperator(shape=(m, r), matvec=LSRN_matvec, rmatvec=LSRN_rmatvec)
-        result = lsqr(AN, b, atol=tol / cond_AN, btol=tol / cond_AN, iter_lim=iter_lim)[:8]
+        result = lsqr(AN, b, atol=tol / cond_AN, btol=tol / cond_AN, iter_lim=iter_lim)
 
         y = result[0]
         flag = result[1]
@@ -94,11 +94,13 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
         # anorm = result[5]
         # acond = result[6]
         # arnorm = result[7]
-
+        relative_residual_error_array_array = result[-1]
+        relative_normal_equation_error_array = result[-2]
         x = N.dot(y)
     else:
 
         print("The under-determined case is not implemented.")
 
     # return x, itn, flag, r1norm, r2norm, anorm, acond, arnorm, r
-    return x, itn, flag, r
+    return x, itn, flag, r, relative_normal_equation_error_array, relative_residual_error_array_array
+    # return x, itn, flag, r
