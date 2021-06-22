@@ -4,7 +4,8 @@ import numpy as np
 from numpy.linalg import norm
 from scipy.sparse.linalg import lsqr
 
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blen_Scipy_LSQR import blendenpik_srct_scipy_lsqr
+#from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blen_Scipy_LSQR import blendenpik_srct_scipy_lsqr
+from riley.protomodules.blendenpik import blendenpik_srct as blendenpik_srct_scipy_lsqr
 from Haoyun.randomized_least_square_solver.LSRN.LSRN_over import LSRN_over
 from Haoyun.randomized_least_square_solver.Test.test_matrix_generator import overdetermined_ls_test_matrix_generator
 
@@ -12,8 +13,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # cond_num_list = 10 ** np.arange(6)
-cond_num_list = 10 ** np.linspace(6, 16, 3)
-theta_list = 2 ** (-np.linspace(53, 0, 6))
+cond_num_list = 10 ** np.linspace(6, 14, 5)
+theta_list = 2 ** (-np.linspace(53, 0, 4))
 
 cond_len = len(cond_num_list)
 theta_list_len = len(theta_list)
@@ -44,8 +45,8 @@ for cond_num_index in np.arange(cond_len):
     for theta_index in np.arange(theta_list_len):
         theta = theta_list[theta_index]
         for matrix in np.arange(matrix_num):
-            A, x, b = overdetermined_ls_test_matrix_generator(m=6000,
-                                                              n=300,
+            A, x, b = overdetermined_ls_test_matrix_generator(m=6000//5,
+                                                              n=300//5,
                                                               theta=theta,
                                                               seednum=100 * (matrix + 1) + 10 * (
                                                                       matrix + 2) + matrix + 3,
@@ -115,7 +116,7 @@ for cond_num_index in np.arange(cond_len):
             tol = 1e-14
 
             t8 = perf_counter()
-            x5, flag, iternum, (r, e) = blendenpik_srct_scipy_lsqr(A, b, d, tol, 2000)
+            x5, flag, iternum, rep = blendenpik_srct_scipy_lsqr(A, b, d, tol, 2000)
             t9 = perf_counter() - t8
 
             Riley_Blen_iternum_matrix[cond_num_index, theta_index] += iternum
@@ -204,6 +205,7 @@ plt.ylabel('log10(condition number)')
 plt.savefig('HeatMap/Theta/Normal Equation Error/Riley Blendenpik HeatMap of Normal Equation Error.png')
 plt.show()
 
+"""
 # The heat heap of averaged relative error of Naive LSQR of five randomized m * m/20 matrix.
 # log10(condition number) ranges from 1 to 6 and m/1000 ranges from 1 to 6.
 
@@ -236,6 +238,7 @@ plt.xlabel('log2(pi/2-theta)')
 plt.ylabel('log10(condition number)')
 plt.savefig('HeatMap/Theta/Relative Error/Riley Blen HeatMap Relative Error.png')
 plt.show()
+"""
 
 ##################
 #### 2D Plot #####
@@ -297,6 +300,7 @@ plt.legend(loc='best', shadow=True)
 plt.savefig('2D Plot/Theta/Normal Equation Error/Fixed Condition number.png')
 plt.show()
 
+"""
 # Plot of relative error of different algorithms versus log2(theta)
 
 log2_theta_list = np.log2(theta_list)
@@ -324,3 +328,4 @@ plt.title('Relative Error of 6000 * 300 Randomized Matrices(Theta=pi/2-1)')
 plt.legend(loc='best', shadow=True)
 plt.savefig('2D Plot/Theta/Relative Error/Fixed Dimension.png')
 plt.show()
+"""
