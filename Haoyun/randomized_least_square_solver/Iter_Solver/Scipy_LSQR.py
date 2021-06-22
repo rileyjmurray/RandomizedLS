@@ -49,7 +49,7 @@ Adapted for SciPy by Stefan van der Walt.
 
 """
 
-__all__ = ['lsqr']
+__all__ = ['lsqr_copy']
 
 import numpy as np
 from math import sqrt
@@ -87,14 +87,14 @@ def _sym_ortho(a, b):
         r = b / s
     else:
         tau = b / a
-        c = np.sign(a) / sqrt(1+tau*tau)
+        c = np.sign(a) / sqrt(1 + tau * tau)
         s = c * tau
         r = a / c
     return c, s, r
 
 
-def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
-         iter_lim=None, show=False, calc_var=False, x0=None):
+def lsqr_copy(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
+              iter_lim=None, show=False, calc_var=False, x0=None):
     """Find the least-squares solution to a large, sparse, linear system
     of equations.
 
@@ -310,8 +310,10 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
     # set the arrays to store the normal equation error and residual error via iteration
 
     relative_normal_equation_error_array = []
+    absolute_normal_equation_error_array = []
     relative_residual_error_array = []
-
+    absolute_residual_error_array = []
+    relative_error_array = []
     # absolute_normal_equation_error_array = []
 
     A = aslinearoperator(A)
@@ -325,13 +327,13 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
     var = np.zeros(n)
 
     msg = ('The exact solution is  x = 0                              ',
-         'Ax - b is small enough, given atol, btol                  ',
-         'The least-squares solution is good enough, given atol     ',
-         'The estimate of cond(Abar) has exceeded conlim            ',
-         'Ax - b is small enough for this machine                   ',
-         'The least-squares solution is good enough for this machine',
-         'Cond(Abar) seems to be too large for this machine         ',
-         'The iteration limit has been reached                      ')
+           'Ax - b is small enough, given atol, btol                  ',
+           'The least-squares solution is good enough, given atol     ',
+           'The estimate of cond(Abar) has exceeded conlim            ',
+           'Ax - b is small enough for this machine                   ',
+           'The least-squares solution is good enough for this machine',
+           'Cond(Abar) seems to be too large for this machine         ',
+           'The iteration limit has been reached                      ')
 
     if show:
         print(' ')
@@ -349,10 +351,10 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
     istop = 0
     ctol = 0
     if conlim > 0:
-        ctol = 1/conlim
+        ctol = 1 / conlim
     anorm = 0
     acond = 0
-    dampsq = damp**2
+    dampsq = damp ** 2
     ddnorm = 0
     res2 = 0
     xnorm = 0
@@ -376,7 +378,7 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         beta = np.linalg.norm(u)
 
     if beta > 0:
-        u = (1/beta) * u
+        u = (1 / beta) * u
         v = A.rmatvec(u)
         alfa = np.linalg.norm(v)
     else:
@@ -384,7 +386,7 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         alfa = 0
 
     if alfa > 0:
-        v = (1/alfa) * v
+        v = (1 / alfa) * v
     w = v.copy()
 
     rhobar = alfa
@@ -426,8 +428,8 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         beta = np.linalg.norm(u)
 
         if beta > 0:
-            u = (1/beta) * u
-            anorm = sqrt(anorm**2 + alfa**2 + beta**2 + damp**2)
+            u = (1 / beta) * u
+            anorm = sqrt(anorm ** 2 + alfa ** 2 + beta ** 2 + damp ** 2)
             v = A.rmatvec(u) - beta * v
             alfa = np.linalg.norm(v)
             if alfa > 0:
@@ -435,7 +437,7 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
 
         # Use a plane rotation to eliminate the damping parameter.
         # This alters the diagonal (rhobar) of the lower-bidiagonal matrix.
-        rhobar1 = sqrt(rhobar**2 + damp**2)
+        rhobar1 = sqrt(rhobar ** 2 + damp ** 2)
         cs1 = rhobar / rhobar1
         sn1 = damp / rhobar1
         psi = sn1 * phibar
@@ -456,12 +458,14 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         t2 = -theta / rho
         dk = (1 / rho) * w
 
+        # How it computes rho
+
         x = x + t1 * w
         w = v + t2 * w
-        ddnorm = ddnorm + np.linalg.norm(dk)**2
+        ddnorm = ddnorm + np.linalg.norm(dk) ** 2
 
         if calc_var:
-            var = var + dk**2
+            var = var + dk ** 2
 
         # Use a plane rotation on the right to eliminate the
         # super-diagonal element (theta) of the upper-bidiagonal matrix.
@@ -470,19 +474,19 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         gambar = -cs2 * rho
         rhs = phi - delta * z
         zbar = rhs / gambar
-        xnorm = sqrt(xxnorm + zbar**2)
-        gamma = sqrt(gambar**2 + theta**2)
+        xnorm = sqrt(xxnorm + zbar ** 2)
+        gamma = sqrt(gambar ** 2 + theta ** 2)
         cs2 = gambar / gamma
         sn2 = theta / gamma
         z = rhs / gamma
-        xxnorm = xxnorm + z**2
+        xxnorm = xxnorm + z ** 2
 
         # Test for convergence.
         # First, estimate the condition of the matrix  Abar,
         # and the norms of  rbar  and  Abar'rbar.
         acond = anorm * sqrt(ddnorm)
-        res1 = phibar**2
-        res2 = res2 + psi**2
+        res1 = phibar ** 2
+        res2 = res2 + psi ** 2
         rnorm = sqrt(res1 + res2)
         arnorm = alfa * abs(tau)
 
@@ -493,7 +497,7 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         #    Estimate r1norm from
         #    r1norm = sqrt(r2norm^2 - damp^2*||x||^2).
         # Although there is cancellation, it might be accurate enough.
-        r1sq = rnorm**2 - dampsq * xxnorm
+        r1sq = rnorm ** 2 - dampsq * xxnorm
         r1norm = sqrt(abs(r1sq))
         if r1sq < 0:
             r1norm = -r1norm
@@ -506,20 +510,24 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         # anorm is the estimate of Frobenius norm of ``Abar = [[A]; [damp*I]]``.
         #  rnorm is ``sqrt( norm(r)^2  +  damp^2 * norm(x)^2 )``, where ``r = b - Ax``.
 
-        # test1 is for the residual error
-        # test2 is for the normal equation error
+        # test1 is for the relative residual error
+        # test2 is for the relative normal equation error
 
         test1 = rnorm / bnorm
-        test2 = arnorm / (anorm * rnorm + eps)
-        test2_new = arnorm / (anorm * anorm * xnorm)
+        # test2 = arnorm / (anorm * rnorm + eps)
+        test2 = arnorm / (anorm * anorm * xnorm)
         test3 = 1 / (acond + eps)
         t1 = test1 / (1 + anorm * xnorm / bnorm)
         rtol = btol + atol * anorm * xnorm / bnorm
 
-        # store the normal equation error and residual error into arrays
-        relative_normal_equation_error_array.append(test2_new)
+        # store the relative/absolute normal equation error, relative/absolute residual error
+        # \and relative error into arrays.
+        relative_normal_equation_error_array.append(test2)
+        absolute_normal_equation_error_array.append(arnorm)
         relative_residual_error_array.append(test1)
+        absolute_residual_error_array.append(rnorm)
 
+        # relative_error_array.append()
         # The following tests guard against extremely small values of
         # atol, btol  or  ctol.  (The user may have set any or all of
         # the parameters  atol, btol, conlim  to 0.)
@@ -548,14 +556,14 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
             prnt = True
         if itn <= 10:
             prnt = True
-        if itn >= iter_lim-10:
+        if itn >= iter_lim - 10:
             prnt = True
         # if itn%10 == 0: prnt = True
-        if test3 <= 2*ctol:
+        if test3 <= 2 * ctol:
             prnt = True
-        if test2 <= 10*atol:
+        if test2 <= 10 * atol:
             prnt = True
-        if test1 <= 10*rtol:
+        if test1 <= 10 * rtol:
             prnt = True
         if istop != 0:
             prnt = True
@@ -586,4 +594,6 @@ def lsqr(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         print(str3 + '   ' + str4)
         print(' ')
 
-    return x, istop, itn, r1norm, r2norm, anorm, acond, arnorm, xnorm, var, relative_normal_equation_error_array, relative_residual_error_array
+    return x, istop, itn, r1norm, r2norm, anorm, acond, arnorm, xnorm, var, relative_normal_equation_error_array, \
+           relative_residual_error_array, absolute_normal_equation_error_array, absolute_residual_error_array,
+

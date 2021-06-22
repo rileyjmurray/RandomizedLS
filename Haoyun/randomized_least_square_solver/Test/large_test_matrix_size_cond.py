@@ -10,238 +10,302 @@ from Haoyun.randomized_least_square_solver.Test.test_matrix_generator import ove
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+import matplotlib.cm as cm
 
-# cond_num_list = 10 ** np.arange(6)
-cond_num_list = 10 ** np.linspace(0, 16, 6)
-m_div_1000_list = np.arange(1, 7)
+# Set the condition number to be ranging from 1 to 10^16.
+# Set the matrix size to be ranging from 1000*50 to 10000*500
+
+cond_num_list = 10 ** np.linspace(0, 16, 5)
+# cond_num_list = 10 ** np.linspace(2, 6, 3)
+m_div_1000_list = np.arange(2, 12, 2)
+# m_div_1000_list = np.arange(1, 4, 1)
 
 cond_len = len(cond_num_list)
 m_div_1000_len = len(m_div_1000_list)
 
-# Blendenpik_iternum_matrix = np.zeros((cond_len, m_div_100_len))
-# Blendenpik_time_matrix = np.zeros((cond_len, m_div_100_len))
-# Blendenpik_normal_equation_error_matrix = np.zeros((cond_len, m_div_100_len))
+# Initialize the matrices to store the iteration number, time, relative normal equation error and relative
+# residual error of different iterative solvers
 
 LSRN_iternum_matrix = np.zeros((cond_len, m_div_1000_len))
 LSRN_time_matrix = np.zeros((cond_len, m_div_1000_len))
-LSRN_normal_equation_error_matrix = np.zeros((cond_len, m_div_1000_len))
-LSRN_relative_error_matrix = np.zeros((cond_len, m_div_1000_len))
+LSRN_relative_normal_equation_error_matrix = np.zeros((cond_len, m_div_1000_len))
+LSRN_relative_residual_error_matrix = np.zeros((cond_len, m_div_1000_len))
 
 Naive_LSQR_iternum_matrix = np.zeros((cond_len, m_div_1000_len))
 Naive_LSQR_time_matrix = np.zeros((cond_len, m_div_1000_len))
-Naive_LSQR_normal_equation_error_matrix = np.zeros((cond_len, m_div_1000_len))
-Naive_LSQR_relative_error_matrix = np.zeros((cond_len, m_div_1000_len))
+Naive_LSQR_relative_normal_equation_error_matrix = np.zeros((cond_len, m_div_1000_len))
+Naive_LSQR_relative_residual_error_matrix = np.zeros((cond_len, m_div_1000_len))
 
 Riley_Blen_iternum_matrix = np.zeros((cond_len, m_div_1000_len))
 Riley_Blen_time_matrix = np.zeros((cond_len, m_div_1000_len))
-Riley_Blen_normal_equation_error_matrix = np.zeros((cond_len, m_div_1000_len))
-Riley_Blen_relative_error_matrix = np.zeros((cond_len, m_div_1000_len))
+Riley_Blen_relative_normal_equation_error_matrix = np.zeros((cond_len, m_div_1000_len))
+Riley_Blen_relative_residual_error_matrix = np.zeros((cond_len, m_div_1000_len))
 
-
+# Choose five different randomized matrices
 matrix_num = 5
+# Set the matrix coherence to be low
+coherence_type = "medium"
 
 for cond_num_index in np.arange(cond_len):
     cond_num = cond_num_list[cond_num_index]
     for m_div_1000_index in np.arange(m_div_1000_len):
         m_div_1000 = m_div_1000_list[m_div_1000_index]
         for matrix in np.arange(matrix_num):
-            A, x, b = overdetermined_ls_test_matrix_generator(m=m_div_1000 * 1000,
+            A, _, b = overdetermined_ls_test_matrix_generator(m=m_div_1000 * 1000,
                                                               n=m_div_1000 * 50,
+                                                              coherence_type=coherence_type,
+                                                              added_row_count=m_div_1000 * 25,
                                                               theta=0,
                                                               seednum=100 * (matrix + 1) + 10 * (
                                                                       matrix + 2) + matrix + 3,
                                                               fill_diagonal_method='geometric',
                                                               condition_number=cond_num)
-            x = x.ravel()
+            # x = x.ravel()
             b = b.ravel()
 
-            # # My Blendenpik
-            # t0_1 = perf_counter()
-            # blendenpik1 = Blendenpik(A1, b1)
-            # x1_1, iternum1_1 = blendenpik1.solve()
-            # t1_1 = perf_counter() - t0_1
+            # ----------------------------------------------------------------------------------------------------------------------------
+            # Remove Naive LSQR, which seems to be an outlier
+            # ----------------------------------------------------------------------------------------------------------------------------
 
-            # t0_2 = perf_counter()
-            # blendenpik2 = Blendenpik(A2, b2)
-            # x1_2, iternum1_2 = blendenpik2.solve()
-            # t1_2 = perf_counter() - t0_2
-
-            # t0_3 = perf_counter()
-            # blendenpik3 = Blendenpik(A3, b3)
-            # x1_3, iternum1_3 = blendenpik3.solve()
-            # t1_3 = perf_counter() - t0_3
-
-            # Blendenpik_iternum_list[index] = (iternum1_1 + iternum1_2 + iternum1_3) / 3 Blendenpik_time_list[index]
-            # = (t1_1 + t1_2 + t1_3) / 3 Blendenpik_normal_equation_error_list[index] = (np.linalg.norm(A1.transpose(
-            # ) @ A1 @ x1_1 - A1.transpose() @ b1,ord =2) + np.linalg.norm(A2.transpose() @ A2 @ x1_2 - A2.transpose(
-            # ) @ b2,ord =2) + np.linalg.norm(A3.transpose() @ A3 @ x1_3 - A3.transpose() @ b3,ord =2)) / 3
-
-            # print("Blendenpik algorithm:")
-            # print("\tNormal Equation:", np.linalg.norm(A.transpose() @ A @ x1 - A.transpose() @ b,ord =2))
-            # print("\tResidual (L2-norm):", np.linalg.norm(A @ x1 - b,ord =2))
-            # print("\tError:", np.linalg.norm(x1 - x,ord =2)/np.linalg.norm(x,ord =2))
-            # print("\tComputational time (sec.):", t1)
-            # print("\tThe iteration number is:", iternum1)
-
-            # Naive LSQR
-            t10 = perf_counter()
-            # total2 = LSQR(A, b, tol=1e-14)
-            total2 = lsqr(A, b, atol=1e-14, btol=1e-14, iter_lim=1000)
-            x6 = total2[0]
-            iternum2 = total2[2]
-            t11 = perf_counter() - t10
-            r1 = b - A @ x6
-
-            Naive_LSQR_iternum_matrix[cond_num_index, m_div_1000_index] += iternum2
-            Naive_LSQR_time_matrix[cond_num_index, m_div_1000_index] += t11
-            Naive_LSQR_normal_equation_error_matrix[cond_num_index, m_div_1000_index] \
-                += norm(A.transpose() @ r1) / (norm(A) * norm(r1))
-            Naive_LSQR_relative_error_matrix[cond_num_index, m_div_1000_index] += norm(r1) / norm(b)
+            # # Naive LSQR
+            # t1 = perf_counter()
+            # total1 = lsqr(A, b, atol=1e-14, btol=1e-14, iter_lim=500)
+            # x1 = total1[0]
+            # iternum1 = total1[2]
+            # t2 = perf_counter() - t1
+            # r1 = b - A @ x1
+            #
+            # Naive_LSQR_iternum_matrix[cond_num_index, m_div_1000_index] += iternum1
+            # Naive_LSQR_time_matrix[cond_num_index, m_div_1000_index] += t2
+            # Naive_LSQR_relative_normal_equation_error_matrix[cond_num_index, m_div_1000_index] \
+            #     += norm(A.transpose() @ r1) / (norm(A) * norm(A) * norm(x1))
+            # Naive_LSQR_relative_residual_error_matrix[cond_num_index, m_div_1000_index] += norm(r1) / norm(b)
 
             # LSRN
-            t2 = perf_counter()
-            x2, iternum3 = LSRN_over(A, b, tol=1e-14, iter_lim=2000)[:2]
-            t3 = perf_counter() - t2
+            t3 = perf_counter()
+            x2, iternum2 = LSRN_over(A, b, tol=1e-14, iter_lim=500)[:2]
+            t4 = perf_counter() - t3
             r2 = b - A @ x2
 
-            LSRN_iternum_matrix[cond_num_index, m_div_1000_index] += iternum3
-            LSRN_time_matrix[cond_num_index, m_div_1000_index] += t3
-            LSRN_normal_equation_error_matrix[cond_num_index, m_div_1000_index] \
-                += norm(A.transpose() @ r2) / (norm(A) * norm(r2))
-            LSRN_relative_error_matrix[cond_num_index, m_div_1000_index] += norm(r2) / norm(b)
+            LSRN_iternum_matrix[cond_num_index, m_div_1000_index] += iternum2
+            LSRN_time_matrix[cond_num_index, m_div_1000_index] += t4
+            LSRN_relative_normal_equation_error_matrix[cond_num_index, m_div_1000_index] \
+                += norm(A.transpose() @ r2) / (norm(A) * norm(A) * norm(x2))
+            LSRN_relative_residual_error_matrix[cond_num_index, m_div_1000_index] += norm(r2) / norm(b)
 
             # Riley's Blendenpik
             multiplier = 2
             d = multiplier * A.shape[1]
             tol = 1e-14
 
-            t8 = perf_counter()
-            x5, flag3, iternum4, (r, e) = blendenpik_srct_scipy_lsqr(A, b, d, tol, 1000)
-            t9 = perf_counter() - t8
-            r3 = b - A @ x5
+            t5 = perf_counter()
+            x3, _, iternum3, _ = blendenpik_srct_scipy_lsqr(A, b, d, tol, 500)
+            t6 = perf_counter() - t5
+            r3 = b - A @ x3
 
-            Riley_Blen_iternum_matrix[cond_num_index, m_div_1000_index] += np.count_nonzero(res > -1)
-            Riley_Blen_time_matrix[cond_num_index, m_div_1000_index] += t9
-            Riley_Blen_normal_equation_error_matrix[cond_num_index, m_div_1000_index] \
-                += norm(A.transpose() @ r3) / (norm(A) * norm(r3))
-            Riley_Blen_relative_error_matrix[cond_num_index, m_div_1000_index] += norm(r3) / norm(b)
+            Riley_Blen_iternum_matrix[cond_num_index, m_div_1000_index] += iternum3
+            Riley_Blen_time_matrix[cond_num_index, m_div_1000_index] += t6
+            Riley_Blen_relative_normal_equation_error_matrix[cond_num_index, m_div_1000_index] \
+                += norm(A.transpose() @ r3) / (norm(A) * norm(A) * norm(x3))
+            Riley_Blen_relative_residual_error_matrix[cond_num_index, m_div_1000_index] += norm(r3) / norm(b)
 
         Naive_LSQR_iternum_matrix[cond_num_index, m_div_1000_index] /= matrix_num
         Naive_LSQR_time_matrix[cond_num_index, m_div_1000_index] /= matrix_num
-        Naive_LSQR_normal_equation_error_matrix[cond_num_index, m_div_1000_index] /= matrix_num
-        Naive_LSQR_relative_error_matrix[cond_num_index, m_div_1000_index] /= matrix_num
+        Naive_LSQR_relative_normal_equation_error_matrix[cond_num_index, m_div_1000_index] /= matrix_num
+        Naive_LSQR_relative_residual_error_matrix[cond_num_index, m_div_1000_index] /= matrix_num
 
         LSRN_iternum_matrix[cond_num_index, m_div_1000_index] /= matrix_num
         LSRN_time_matrix[cond_num_index, m_div_1000_index] /= matrix_num
-        LSRN_normal_equation_error_matrix[cond_num_index, m_div_1000_index] /= matrix_num
-        LSRN_relative_error_matrix[cond_num_index, m_div_1000_index] /= matrix_num
+        LSRN_relative_normal_equation_error_matrix[cond_num_index, m_div_1000_index] /= matrix_num
+        LSRN_relative_residual_error_matrix[cond_num_index, m_div_1000_index] /= matrix_num
 
         Riley_Blen_iternum_matrix[cond_num_index, m_div_1000_index] /= matrix_num
         Riley_Blen_time_matrix[cond_num_index, m_div_1000_index] /= matrix_num
-        Riley_Blen_normal_equation_error_matrix[cond_num_index, m_div_1000_index] /= matrix_num
-        Riley_Blen_relative_error_matrix[cond_num_index, m_div_1000_index] /= matrix_num
+        Riley_Blen_relative_normal_equation_error_matrix[cond_num_index, m_div_1000_index] /= matrix_num
+        Riley_Blen_relative_residual_error_matrix[cond_num_index, m_div_1000_index] /= matrix_num
 
-# ##################
-# #### Heatmap #####
-# ##################
+##################
+#### Heat Map ####
+##################
 
-# The heat heap of averaged iteration number of Naive LSQR of five randomized m * m/20 matrix.
-# log10(condition number) ranges from 1 to 6 and m/1000 ranges from 1 to 6.
+# The heat heap of log10(averaged iteration number) of Naive LSQR, LSRN, and Riley's Blendenpik
+# of five randomized m * m/20 matrix. log10(matrix condition number) ranges from 0 to 16
+# with step size 4 and m/1000 ranges from 2 to 10 with step size 2.
 
-sns.heatmap(Naive_LSQR_iternum_matrix, xticklabels=m_div_1000_list,
-            yticklabels=np.round(np.log10(cond_num_list), 1))
-plt.title('Heat map of iteration number of Naive LSQR')
-plt.xlabel('m/1000')
-plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Iteration Number/Naive LSQR HeatMap Iteration Number.png')
+# data_min = np.min([np.min(np.log10(Naive_LSQR_iternum_matrix)), np.log10(np.min(LSRN_iternum_matrix)),
+#                    np.log10(np.min(Riley_Blen_iternum_matrix))])
+# data_max = np.max([np.max(np.log10(Naive_LSQR_iternum_matrix)), np.log10(np.max(LSRN_iternum_matrix)),
+#                    np.log10(np.max(Riley_Blen_iternum_matrix))])
+data_min = np.min([np.log10(np.min(LSRN_iternum_matrix)), np.log10(np.min(Riley_Blen_iternum_matrix))])
+data_max = np.max([np.log10(np.max(LSRN_iternum_matrix)), np.log10(np.max(Riley_Blen_iternum_matrix))])
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+cmap = cm.get_cmap('viridis')
+normalizer = Normalize(data_min, data_max)
+im = cm.ScalarMappable(norm=normalizer)
+
+# iter_solver_array = ["Naive LSQR", "LSRN", "Riley's Blendenpik"]
+iter_solver_array = ["LSRN", "Riley's Blendenpik"]
+# data_array = [np.log10(Naive_LSQR_iternum_matrix), np.log10(LSRN_iternum_matrix), np.log10(Riley_Blen_iternum_matrix)]
+data_array = [np.log10(LSRN_iternum_matrix), np.log10(Riley_Blen_iternum_matrix)]
+for i in np.arange(len(iter_solver_array)):
+    axes[i].set_xlabel('m/1000')
+    axes[i].set_ylabel('log10(condition number)')
+    axes[i].set_xticks(np.arange(m_div_1000_len))
+    axes[i].set_yticks(np.arange(cond_len))
+    axes[i].set_xticklabels(m_div_1000_list)
+    axes[i].set_yticklabels(np.log10(cond_num_list).astype(int))
+    axes[i].set_title('log10(Iteration number) of ' + iter_solver_array[i])
+    axes[i].imshow(data_array[i], cmap=cmap, norm=normalizer)
+
+
+# cbar_ax = fig.add_axes([0.95, 0.15, 0.01, 0.7])
+# fig.colorbar(im, cax=cbar_ax)
+fig.colorbar(im, ax=axes.ravel().tolist())
+plt.savefig('Matrix Size & Cond/Heat Map/log10(Iteration Number) ' + coherence_type + ' Coherence.png')
 plt.show()
 
-# The heat heap of averaged iteration number of LSRN of five randomized m * m/20 matrix.
-# log10(condition number) ranges from 1 to 6 and m/1000 ranges from 1 to 6.
+# The heat heap of averaged iteration number of Naive LSQR, LSRN, and Riley's Blendenpik
+# of five randomized m * m/20 matrix. log10(matrix condition number) ranges from 0 to 16
+# with step size 4 and m/1000 ranges from 2 to 10 with step size 2.
 
-sns.heatmap(LSRN_iternum_matrix, xticklabels=m_div_1000_list,
-            yticklabels=np.round(np.log10(cond_num_list), 1))
-plt.title('Heat map of iteration number of LSRN')
-plt.xlabel('m/1000')
-plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Iteration Number/LSRN HeatMap Iteration Number.png')
+# data_min = np.min([np.min(np.log10(Naive_LSQR_iternum_matrix)), np.log10(np.min(LSRN_iternum_matrix)),
+#                    np.log10(np.min(Riley_Blen_iternum_matrix))])
+# data_max = np.max([np.max(np.log10(Naive_LSQR_iternum_matrix)), np.log10(np.max(LSRN_iternum_matrix)),
+#                    np.log10(np.max(Riley_Blen_iternum_matrix))])
+data_min = np.min([np.min(LSRN_iternum_matrix), np.min(Riley_Blen_iternum_matrix)])
+data_max = np.max([np.max(LSRN_iternum_matrix), np.max(Riley_Blen_iternum_matrix)])
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+cmap = cm.get_cmap('viridis')
+normalizer = Normalize(data_min, data_max)
+im = cm.ScalarMappable(norm=normalizer)
+
+# iter_solver_array = ["Naive LSQR", "LSRN", "Riley's Blendenpik"]
+iter_solver_array = ["LSRN", "Riley's Blendenpik"]
+# data_array = [np.log10(Naive_LSQR_iternum_matrix), np.log10(LSRN_iternum_matrix), np.log10(Riley_Blen_iternum_matrix)]
+data_array = [LSRN_iternum_matrix, Riley_Blen_iternum_matrix]
+for i in np.arange(len(iter_solver_array)):
+    axes[i].set_xlabel('m/1000')
+    axes[i].set_ylabel('condition number')
+    axes[i].set_xticks(np.arange(m_div_1000_len))
+    axes[i].set_yticks(np.arange(cond_len))
+    axes[i].set_xticklabels(m_div_1000_list)
+    axes[i].set_yticklabels(np.log10(cond_num_list).astype(int))
+    axes[i].set_title('Iteration number of ' + iter_solver_array[i])
+    axes[i].imshow(data_array[i], cmap=cmap, norm=normalizer)
+
+
+# cbar_ax = fig.add_axes([0.95, 0.15, 0.01, 0.7])
+# fig.colorbar(im, cax=cbar_ax)
+fig.colorbar(im, ax=axes.ravel().tolist())
+plt.savefig('Matrix Size & Cond/Heat Map/Iteration Number ' + coherence_type + ' Coherence.png')
 plt.show()
 
-# The heat heap of averaged iteration number of Riley's Blendenpik of five randomized m * m/20 matrix.
-# log10(condition number) ranges from 1 to 6 and m/1000 ranges from 1 to 6.
+# # The heat heap of averaged running time of Naive LSQR, LSRN, and Riley's Blendenpik
+# of five randomized m * m/20 matrix.log10(matrix condition number) ranges from 0 to 16
+# with step size 4 and m/1000 ranges from 2 to 10 with step size 2.
 
-sns.heatmap(Riley_Blen_iternum_matrix, xticklabels=m_div_1000_list,
-            yticklabels=np.round(np.log10(cond_num_list), 1))
-plt.title('Heat map of iteration number of Riley Blendenpik')
-plt.xlabel('m/1000')
-plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Iteration Number/Riley Blen HeatMap Iteration Number.png')
+# data_min = np.min([np.min(Naive_LSQR_time_matrix), np.min(LSRN_time_matrix), np.min(Riley_Blen_time_matrix)])
+# data_max = np.max([np.max(Naive_LSQR_time_matrix), np.max(LSRN_time_matrix), np.max(Riley_Blen_time_matrix)])
+data_min = np.min([np.min(LSRN_time_matrix), np.min(Riley_Blen_time_matrix)])
+data_max = np.max([np.max(LSRN_time_matrix), np.max(Riley_Blen_time_matrix)])
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+cmap = cm.get_cmap('viridis')
+normalizer = Normalize(data_min, data_max)
+im = cm.ScalarMappable(norm=normalizer)
+
+iter_solver_array = ["LSRN", "Riley's Blendenpik"]
+# data_array = [Naive_LSQR_time_matrix, LSRN_time_matrix, Riley_Blen_time_matrix]
+data_array = [LSRN_time_matrix, Riley_Blen_time_matrix]
+for i in np.arange(len(iter_solver_array)):
+    axes[i].set_xlabel('m/1000')
+    axes[i].set_ylabel('log10(condition number)')
+    axes[i].set_xticks(np.arange(m_div_1000_len))
+    axes[i].set_yticks(np.arange(cond_len))
+    axes[i].set_xticklabels(m_div_1000_list)
+    axes[i].set_yticklabels(np.log10(cond_num_list).astype(int))
+    axes[i].set_title('Running time of ' + iter_solver_array[i])
+    axes[i].imshow(data_array[i], cmap=cmap, norm=normalizer)
+
+fig.colorbar(im, ax=axes.ravel().tolist())
+plt.savefig('Matrix Size & Cond/Heat Map/Running Time ' + coherence_type + ' Coherence.png')
 plt.show()
 
-# The heat heap of averaged normal equation error of Naive LSQR of five randomized m * m/20 matrix.
-# log10(condition number) ranges from 1 to 6 and m/1000 ranges from 1 to 6.
+# The heat heap of log10(averaged relative normal equation error) of Naive LSQR, LSRN, and Riley's Blendenpik
+# of five randomized m * m/20 matrix. log10(matrix condition number) ranges from 0 to 16 with step size 4
+# and m/1000 ranges from 2 to 10 with step size 2.
+# data_min = np.min([np.min(np.log10(Naive_LSQR_relative_normal_equation_error_matrix)),
+#                    np.min(np.log10(LSRN_relative_normal_equation_error_matrix)),
+#                    np.min(np.log10(Riley_Blen_relative_normal_equation_error_matrix))])
+# data_max = np.max([np.max(np.log10(Naive_LSQR_relative_normal_equation_error_matrix)),
+#                    np.max(np.log10(LSRN_relative_normal_equation_error_matrix)),
+#                    np.max(np.log10(Riley_Blen_relative_normal_equation_error_matrix))])
+data_min = np.min([np.min(np.log10(LSRN_relative_normal_equation_error_matrix)),
+                   np.min(np.log10(Riley_Blen_relative_normal_equation_error_matrix))])
+data_max = np.max([np.max(np.log10(LSRN_relative_normal_equation_error_matrix)),
+                   np.max(np.log10(Riley_Blen_relative_normal_equation_error_matrix))])
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+cmap = cm.get_cmap('viridis')
+normalizer = Normalize(data_min, data_max)
+im = cm.ScalarMappable(norm=normalizer)
 
-sns.heatmap(np.log10(Naive_LSQR_normal_equation_error_matrix), xticklabels=m_div_1000_list,
-            yticklabels=np.round(np.log10(cond_num_list), 1))
-plt.title('Heat map of normal equation error of Naive LSQR')
-plt.xlabel('m/1000')
-plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Normal Equation Error/Naive LSQR HeatMap Normal Equation Error.png')
+# iter_solver_array = ["Naive LSQR", "LSRN", "Riley's Blen"]
+iter_solver_array = ["LSRN", "Riley's Blen"]
+# data_array = [np.log10(Naive_LSQR_relative_normal_equation_error_matrix),
+#               np.log10(LSRN_relative_normal_equation_error_matrix),
+#               np.log10(Riley_Blen_relative_normal_equation_error_matrix)]
+data_array = [np.log10(LSRN_relative_normal_equation_error_matrix),
+              np.log10(Riley_Blen_relative_normal_equation_error_matrix)]
+for i in np.arange(len(iter_solver_array)):
+    axes[i].set_xlabel('m/1000')
+    axes[i].set_ylabel('log10(condition number)')
+    axes[i].set_xticks(np.arange(m_div_1000_len))
+    axes[i].set_yticks(np.arange(cond_len))
+    axes[i].set_xticklabels(m_div_1000_list)
+    axes[i].set_yticklabels(np.log10(cond_num_list).astype(int))
+    axes[i].set_title('log10(rela normal equa error) ' + iter_solver_array[i])
+    axes[i].imshow(data_array[i], cmap=cmap, norm=normalizer)
+
+fig.colorbar(im, ax=axes.ravel().tolist())
+plt.savefig('Matrix Size & Cond/Heat Map/log10(Relative Normal Equation Error) ' + coherence_type + ' Coherence.png')
 plt.show()
 
-# The heat heap of averaged normal equation error of LSRN of five randomized m * m/20 matrix.
-# log10(condition number) ranges from 1 to 6 and m/1000 ranges from 1 to 6.
+# The heat heap of log10(averaged relative residual error) of Naive LSQR, LSRN, and Riley's Blendenpik
+# of five randomized m * m/20 matrix.log10(matrix condition number) ranges from 0 to 16 with step size 4
+# and m/1000 ranges from 2 to 10 with step size 2.
+# data_min = np.min([np.min(np.log10(Naive_LSQR_relative_residual_error_matrix)),
+#                    np.min(np.log10(LSRN_relative_residual_error_matrix)),
+#                    np.min(np.log10(Riley_Blen_relative_residual_error_matrix))])
+# data_max = np.max([np.max(np.log10(Naive_LSQR_relative_residual_error_matrix)),
+#                    np.max(np.log10(LSRN_relative_residual_error_matrix)),
+#                    np.max(np.log10(Riley_Blen_relative_residual_error_matrix))])
+data_min = np.min([np.min(np.log10(LSRN_relative_residual_error_matrix)),
+                   np.min(np.log10(Riley_Blen_relative_residual_error_matrix))])
+data_max = np.max([np.max(np.log10(LSRN_relative_residual_error_matrix)),
+                   np.max(np.log10(Riley_Blen_relative_residual_error_matrix))])
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+cmap = cm.get_cmap('viridis')
+normalizer = Normalize(data_min, data_max)
+im = cm.ScalarMappable(norm=normalizer)
 
-sns.heatmap(np.log10(LSRN_normal_equation_error_matrix), xticklabels=m_div_1000_list,
-            yticklabels=np.round(np.log10(cond_num_list), 1))
-plt.title('Heat map of normal equation error of LSRN')
-plt.xlabel('m/1000')
-plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Normal Equation Error/LSRN HeatMap Normal Equation Error.png')
-plt.show()
+iter_solver_array = ["LSRN", "Riley's Blen"]
+# data_array = [np.log10(Naive_LSQR_relative_residual_error_matrix),
+#               np.log10(LSRN_relative_residual_error_matrix),
+#               np.log10(Riley_Blen_relative_residual_error_matrix)]
+data_array = [np.log10(LSRN_relative_residual_error_matrix),
+              np.log10(Riley_Blen_relative_residual_error_matrix)]
+for i in np.arange(len(iter_solver_array)):
+    axes[i].set_xlabel('m/1000')
+    axes[i].set_ylabel('log10(condition number)')
+    axes[i].set_xticks(np.arange(m_div_1000_len))
+    axes[i].set_yticks(np.arange(cond_len))
+    axes[i].set_xticklabels(m_div_1000_list)
+    axes[i].set_yticklabels(np.log10(cond_num_list).astype(int))
+    axes[i].set_title('log10(relative residual error) ' + iter_solver_array[i])
+    axes[i].imshow(data_array[i], cmap=cmap, norm=normalizer)
 
-# The heat heap of averaged normal equation error of Riley's Blendenpik of five randomized m * m/20 matrix.
-# log10(condition number) ranges from 1 to 6 and m/1000 ranges from 1 to 6.
-
-sns.heatmap(np.log10(Riley_Blen_normal_equation_error_matrix), xticklabels=m_div_1000_list,
-            yticklabels=np.round(np.log10(cond_num_list), 1))
-plt.title('Heat map of normal equation error of Riley Blendenpik')
-plt.xlabel('m/1000')
-plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Normal Equation Error/Riley Blen HeatMap Normal Equation Error.png')
-plt.show()
-
-# The heat heap of averaged relative error of Naive LSQR of five randomized m * m/20 matrix.
-# log10(condition number) ranges from 1 to 6 and m/1000 ranges from 1 to 6.
-
-sns.heatmap(np.log10(Naive_LSQR_relative_error_matrix), xticklabels=m_div_1000_list,
-            yticklabels=np.round(np.log10(cond_num_list), 1))
-plt.title('Heat map of residual error of Naive LSQR')
-plt.xlabel('m/1000')
-plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Residual Error/Naive LSQR HeatMap Residual Error.png')
-plt.show()
-
-# The heat heap of averaged relative error of LSRN of five randomized m * m/20 matrix.
-# log10(condition number) ranges from 1 to 6 and m/1000 ranges from 1 to 6.
-
-sns.heatmap(np.log10(LSRN_relative_error_matrix), xticklabels=m_div_1000_list,
-            yticklabels=np.round(np.log10(cond_num_list), 1))
-plt.title('Heat map of residual error of LSRN')
-plt.xlabel('m/1000')
-plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Residual Error/LSRN HeatMap Residual Error.png')
-plt.show()
-
-# The heat heap of averaged relative error of Riley's Blendenpik of five randomized m * m/20 matrix.
-# log10(condition number) ranges from 1 to 6 and m/1000 ranges from 1 to 6.
-
-sns.heatmap(np.log10(Riley_Blen_relative_error_matrix), xticklabels=m_div_1000_list,
-            yticklabels=np.round(np.log10(cond_num_list), 1))
-plt.title('Heat map of residual error of Riley Blendenpik')
-plt.xlabel('m/1000')
-plt.ylabel('log10(condition number)')
-plt.savefig('HeatMap/Matrix Size/Residual Error/Riley Blen HeatMap Residual Error.png')
+fig.colorbar(im, ax=axes.ravel().tolist())
+plt.savefig('Matrix Size & Cond/Heat Map/log10(Relative Residual Error) ' + coherence_type + ' Coherence.png')
 plt.show()
 
 
@@ -249,83 +313,120 @@ plt.show()
 #### 2D Plot #####
 ##################
 
-# Plot of iternation numbers of different algorithms versus log10(condition number)
+# Plot of iteration numbers of different algorithms versus log10(condition number).
+# log10(matrix condition number) ranges from 0 to 16 with step size 4.
 
 log10_cond_num_list = np.log10(cond_num_list)
-# plt.plot(log10_cond_num, Blendenpik_iternum_list,'r--', label = 'My Blendenpik')
-plt.plot(log10_cond_num_list, Naive_LSQR_iternum_matrix[:, -1], 'g:', label='Naive LSQR')
-plt.plot(log10_cond_num_list, Riley_Blen_iternum_matrix[:, -1], 'b', label='Riley Blendenpik')
-plt.plot(log10_cond_num_list, LSRN_iternum_matrix[:, -1], 'k-.', label='LSRN')
-plt.xlabel('log10(condition number)')
-plt.ylabel('iteration number')
-plt.title('Iteration Number of 6000 * 300 Randomized Matrices')
+# plt.plot(log10_cond_num_list, np.log10(Naive_LSQR_iternum_matrix[:, -1]), 'g:', label='Naive LSQR')
+plt.plot(log10_cond_num_list, np.log10(Riley_Blen_iternum_matrix[:, -1]), 'b', label='Riley Blendenpik')
+plt.plot(log10_cond_num_list, np.log10(LSRN_iternum_matrix[:, -1]), 'k-.', label='LSRN')
+plt.title('log10(Iteration number) of 10000 * 500 randomized matrices')
+plt.xlabel('log10(Condition Number)')
+plt.ylabel('log10(Iteration Number)')
 plt.legend(loc='best', shadow=True)
-plt.savefig('2D Plot/Matrix Size/Iteration Number/Fixed Dimension.png')
+plt.savefig('Matrix Size & Cond/2D Plot/Iteration Number/Fixed Dimension ' + coherence_type + ' Coherence.png')
 plt.show()
 
-# Plot of iternation numbers of different algorithms versus m/1000
+# Plot of iteration numbers of different algorithms versus m/1000.
+# m/1000 ranges from 2 to 10 with step size 2.
 
-# plt.plot(m_div_100_list, Blendenpik_iternum_list,'r--', label = 'My Blendenpik')
-plt.plot(m_div_1000_list, np.log10(Naive_LSQR_iternum_matrix[-1, :]), 'g:', label='Naive LSQR')
-plt.plot(m_div_1000_list, np.log10(Riley_Blen_iternum_matrix[-1, :]), 'b', label='Riley Blendenpik')
-plt.plot(m_div_1000_list, np.log10(LSRN_iternum_matrix[-1, :]), 'k-.', label='LSRN')
+# plt.plot(m_div_1000_list, np.log10(Naive_LSQR_iternum_matrix[2, :]), 'g:', label='Naive LSQR')
+plt.plot(m_div_1000_list, np.log10(Riley_Blen_iternum_matrix[2, :]), 'b', label='Riley Blendenpik')
+plt.plot(m_div_1000_list, np.log10(LSRN_iternum_matrix[2, :]), 'k-.', label='LSRN')
+plt.title('log10(Iteration number) of m * m/20 randomized matrices(cond 1e8)')
 plt.xlabel('m/1000')
-plt.ylabel('log10(iteration number)')
-plt.title('Iteration Number of m * m/20 Randomized Matrices(Cond 1e5)')
+plt.ylabel('log10(Iteration Number)')
 plt.legend(loc='best', shadow=True)
-plt.savefig('2D Plot/Matrix Size/Iteration Number/Fixed Condition number.png')
+plt.savefig('Matrix Size & Cond/2D Plot/Iteration Number/Fixed Condition Number ' + coherence_type + ' Coherence.png')
 plt.show()
 
-# Plots of normal equation error of different algorithms versus log10(condition number)
+# Plot of running time of different algorithms versus log10(condition number).
+# log10(matrix condition number) ranges from 0 to 16 with step size 4.
 
 log10_cond_num_list = np.log10(cond_num_list)
-# plt.plot(log10_cond_num, np.log10(Blendenpik_normal_equation_error_list),'r--', label = 'My Blendenpik')
-plt.plot(log10_cond_num_list, np.log10(Naive_LSQR_normal_equation_error_matrix[:, -1]), 'g:', label='Naive LSQR')
-plt.plot(log10_cond_num_list, np.log10(Riley_Blen_normal_equation_error_matrix[:, -1]), 'b', label='Riley Blendenpik')
-plt.plot(log10_cond_num_list, np.log10(LSRN_normal_equation_error_matrix[:, -1]), 'k-.', label='LSRN')
-plt.xlabel('log10(condition number)')
-plt.ylabel('log10(normal equation error)')
-plt.title('Normal Equation Error of 6000 * 300 Randomized Matrices')
+# plt.plot(log10_cond_num_list, Naive_LSQR_time_matrix[:, -1], 'g:', label='Naive LSQR')
+plt.plot(log10_cond_num_list, Riley_Blen_time_matrix[:, -1], 'b', label='Riley Blendenpik')
+plt.plot(log10_cond_num_list, LSRN_time_matrix[:, -1], 'k-.', label='LSRN')
+plt.title('Running time of 10000 * 500 randomized matrices')
+plt.xlabel('log10(Condition Number)')
+plt.ylabel('Running Time(Sec)')
 plt.legend(loc='best', shadow=True)
-plt.savefig('2D Plot/Matrix Size/Normal Equation Error/Fixed Dimension.png')
+plt.savefig('Matrix Size & Cond/2D Plot/Time/Fixed Dimension ' + coherence_type + ' Coherence.png')
 plt.show()
 
-# Plot of normal equation error of different algorithms versus m/1000
+# Plot of running time of different algorithms versus m/1000.
+# m/1000 ranges from 2 to 10 with step size 2.
 
-# plt.plot(m_div_100_list, Blendenpik_iternum_list,'r--', label = 'My Blendenpik')
-plt.plot(m_div_1000_list, np.log10(Naive_LSQR_normal_equation_error_matrix[-1, :]), 'g:', label='Naive LSQR')
-plt.plot(m_div_1000_list, np.log10(Riley_Blen_normal_equation_error_matrix[-1, :]), 'b', label='Riley Blendenpik')
-plt.plot(m_div_1000_list, np.log10(LSRN_normal_equation_error_matrix[-1, :]), 'k-.', label='LSRN')
+# plt.plot(m_div_1000_list, np.log10(Naive_LSQR_time_matrix[2, :]), 'g:', label='Naive LSQR')
+plt.plot(m_div_1000_list, np.log10(Riley_Blen_time_matrix[2, :]), 'b', label='Riley Blendenpik')
+plt.plot(m_div_1000_list, np.log10(LSRN_time_matrix[2, :]), 'k-.', label='LSRN')
+plt.title('Running Time of m * m/20 randomized matrices(cond 1e8)')
 plt.xlabel('m/1000')
-plt.ylabel('log10(normal equation error)')
-plt.title('Normal Equation Error of m * m/20 Randomized Matrices(Cond 1e5)')
+plt.ylabel('Running Time(Sec.)')
 plt.legend(loc='best', shadow=True)
-plt.savefig('2D Plot/Matrix Size/Normal Equation Error/Fixed Condition number.png')
+plt.savefig('Matrix Size & Cond/2D Plot/Time/Fixed Condition Number ' + coherence_type + ' Coherence.png')
 plt.show()
 
-# Plots of relative error of different algorithms versus log10(condition number)
+# Plots of relative normal equation error of different algorithms versus log10(condition number).
+# log10(matrix condition number) ranges from 0 to 16 with step size 4.
 
 log10_cond_num_list = np.log10(cond_num_list)
-# plt.plot(log10_cond_num, np.log10(Blendenpik_normal_equation_error_list),'r--', label = 'My Blendenpik')
-plt.plot(log10_cond_num_list, np.log10(Naive_LSQR_relative_error_matrix[:, -1]), 'g:', label='Naive LSQR')
-plt.plot(log10_cond_num_list, np.log10(Riley_Blen_relative_error_matrix[:, -1]), 'b', label='Riley Blendenpik')
-plt.plot(log10_cond_num_list, np.log10(LSRN_relative_error_matrix[:, -1]), 'k-.', label='LSRN')
-plt.xlabel('log10(condition number)')
-plt.ylabel('log10(residual error)')
-plt.title('Residual Error of 6000 * 300 Randomized Matrices')
+# plt.plot(log10_cond_num_list, np.log10(Naive_LSQR_relative_normal_equation_error_matrix[:, -1]), 'g:',
+#          label='Naive LSQR')
+plt.plot(log10_cond_num_list, np.log10(Riley_Blen_relative_normal_equation_error_matrix[:, -1]), 'b',
+         label='Riley Blendenpik')
+plt.plot(log10_cond_num_list, np.log10(LSRN_relative_normal_equation_error_matrix[:, -1]), 'k-.',
+         label='LSRN')
+plt.title('Relative normal equation error of 10000 * 500 randomized matrices')
+plt.xlabel('log10(Condition Number)')
+plt.ylabel('log10(Relative Normal Equation Error)')
 plt.legend(loc='best', shadow=True)
-plt.savefig('2D Plot/Matrix Size/Residual Error/Fixed Dimension.png')
+plt.savefig('Matrix Size & Cond/2D Plot/Relative Normal Equation Error/Fixed Dimension ' + coherence_type
+            + ' Coherence.png')
 plt.show()
 
-# Plot of normal equation error of different algorithms versus m/1000
+# Plot of relative normal equation error of different algorithms versus m/1000.
+# m/1000 ranges from 2 to 10 with step size 2.
 
-# plt.plot(m_div_100_list, Blendenpik_iternum_list,'r--', label = 'My Blendenpik')
-plt.plot(m_div_1000_list, np.log10(Naive_LSQR_relative_error_matrix[-1, :]), 'g:', label='Naive LSQR')
-plt.plot(m_div_1000_list, np.log10(Riley_Blen_relative_error_matrix[-1, :]), 'b', label='Riley Blendenpik')
-plt.plot(m_div_1000_list, np.log10(LSRN_relative_error_matrix[-1, :]), 'k-.', label='LSRN')
+# plt.plot(m_div_1000_list, np.log10(Naive_LSQR_relative_normal_equation_error_matrix[2, :]), 'g:',
+#          label='Naive LSQR')
+plt.plot(m_div_1000_list, np.log10(Riley_Blen_relative_normal_equation_error_matrix[2, :]), 'b',
+         label='Riley Blendenpik')
+plt.plot(m_div_1000_list, np.log10(LSRN_relative_normal_equation_error_matrix[2, :]), 'k-.',
+         label='LSRN')
+plt.title('Relative normal equation error m * m/20 randomized matrices(cond 1e8)')
 plt.xlabel('m/1000')
-plt.ylabel('log10(residual error)')
-plt.title('Residual Error of m * m/20 Randomized Matrices(Cond 1e5)')
+plt.ylabel('log10(Relative Normal Equation Error)')
 plt.legend(loc='best', shadow=True)
-plt.savefig('2D Plot/Matrix Size/Residual Error/Fixed Condition number.png')
+plt.savefig('Matrix Size & Cond/2D Plot/Relative Normal Equation Error/Fixed Condition Number ' + coherence_type
+            + ' Coherence.png')
+plt.show()
+
+# Plots of relative error of different algorithms versus log10(condition number).
+# log10(matrix condition number) ranges from 0 to 16 with step size 4.
+
+log10_cond_num_list = np.log10(cond_num_list)
+# plt.plot(log10_cond_num_list, np.log10(Naive_LSQR_relative_residual_error_matrix[:, -1]), 'g:', label='Naive LSQR')
+plt.plot(log10_cond_num_list, np.log10(Riley_Blen_relative_residual_error_matrix[:, -1]), 'b', label='Riley Blendenpik')
+plt.plot(log10_cond_num_list, np.log10(LSRN_relative_residual_error_matrix[:, -1]), 'k-.', label='LSRN')
+plt.title('Relative residual error of 10000 * 500 randomized matrices')
+plt.xlabel('log10(Condition Number)')
+plt.ylabel('log10(Relative Residual Error)')
+plt.legend(loc='best', shadow=True)
+plt.savefig('Matrix Size & Cond/2D Plot/Relative Residual Error/Fixed Dimension ' + coherence_type
+            + ' Coherence.png')
+plt.show()
+
+# Plot of relative residual error of different algorithms versus m/1000.
+# m/1000 ranges from 2 to 10 with step size 2.
+
+# plt.plot(m_div_1000_list, np.log10(Naive_LSQR_relative_residual_error_matrix[2, :]), 'g:', label='Naive LSQR')
+plt.plot(m_div_1000_list, np.log10(Riley_Blen_relative_residual_error_matrix[2, :]), 'b', label='Riley Blendenpik')
+plt.plot(m_div_1000_list, np.log10(LSRN_relative_residual_error_matrix[2, :]), 'k-.', label='LSRN')
+plt.title('Relative residual error of m * m/20 randomized matrices(cond 1e8)')
+plt.xlabel('m/1000')
+plt.ylabel('log10(Relative Residual Rrror)')
+plt.legend(loc='best', shadow=True)
+plt.savefig('Matrix Size & Cond/2D Plot/Relative Residual Error/Fixed Condition Number ' + coherence_type
+            + ' Coherence.png')
 plt.show()

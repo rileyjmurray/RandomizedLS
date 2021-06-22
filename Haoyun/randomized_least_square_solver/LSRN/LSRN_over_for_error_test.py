@@ -7,7 +7,7 @@ from numpy.linalg import svd
 from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
 
 
-def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
+def LSRN_over_for_error_test(A, b, tol=1e-8, gamma=2, iter_lim=1000):
     """
     LSRN computes the min-length solution of linear least squares via LSQR with
     randomized preconditioning
@@ -42,6 +42,8 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
     #####################################################
     # Incorporate the sketching method into the sketch.py
     #####################################################
+
+    relative_normal_equation_error_array, relative_residual_error_array_array = None, None
 
     if m > n:  # over-determined
 
@@ -81,23 +83,23 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
         cond_AN = (sqrt(gamma_new) + 1) / (sqrt(gamma_new) - 1)
 
         AN = LinearOperator(shape=(m, r), matvec=LSRN_matvec, rmatvec=LSRN_rmatvec)
-        result = lsqr(AN, b, atol=tol / cond_AN, btol=tol / cond_AN, iter_lim=iter_lim)
+        result = lsqr_copy(AN, b, atol=tol / cond_AN, btol=tol / cond_AN, iter_lim=iter_lim)
 
         y = result[0]
         flag = result[1]
         itn = result[2]
-        # r1norm = result[3]
-        # r2norm = result[4]
-        # anorm = result[5]
-        # acond = result[6]
-        # arnorm = result[7]
-        relative_residual_error_array_array = result[-1]
-        relative_normal_equation_error_array = result[-2]
+
+        absolute_residual_error_array = result[-1]
+        absolute_normal_equation_error_array = result[-2]
+        relative_residual_error_array = result[-3]
+        relative_normal_equation_error_array = result[-4]
+
         x = N.dot(y)
     else:
 
         print("The under-determined case is not implemented.")
 
-    # return x, itn, flag, r1norm, r2norm, anorm, acond, arnorm, r
+
     # return x, itn, flag, r, relative_normal_equation_error_array, relative_residual_error_array_array
-    return x, itn, flag, r
+    return x, itn, flag, r, relative_normal_equation_error_array, relative_residual_error_array, \
+           absolute_normal_equation_error_array, absolute_residual_error_array,

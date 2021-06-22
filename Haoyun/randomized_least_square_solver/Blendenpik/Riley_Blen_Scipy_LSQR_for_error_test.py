@@ -9,7 +9,7 @@ from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik import sr
 from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
 
 
-def blendenpik_srct_scipy_lsqr(A, b, d, tol, maxit):
+def blendenpik_srct_scipy_lsqr_for_error_test(A, b, d, tol, maxit):
     """
     WARNING: this is not yet tested (but its components are tested).
     Run preconditioned conjugate gradients to obtain an approximate solution to
@@ -62,8 +62,16 @@ def blendenpik_srct_scipy_lsqr(A, b, d, tol, maxit):
 
     A_precond = sparla.LinearOperator(shape=(n, m), matvec=mv, rmatvec=rmv)
 
-    result = sparla.lsqr(A_precond, b, atol=tol, btol=tol, iter_lim=maxit)[:8]
+    result = lsqr_copy(A_precond, b, atol=tol, btol=tol, iter_lim=maxit)
     x = p_mv(result[0])
     flag = result[1]
     iternum = result[2]
-    return x, flag, iternum, (r, e)
+
+    absolute_residual_error_array = result[-1]
+    absolute_normal_equation_error_array = result[-2]
+    relative_residual_error_array = result[-3]
+    relative_normal_equation_error_array = result[-4]
+
+    # return x, flag, iternum, (r, e)
+    return x, flag, iternum, (r, e), relative_normal_equation_error_array, relative_residual_error_array, \
+           absolute_normal_equation_error_array, absolute_residual_error_array,
