@@ -299,7 +299,7 @@ def srct_approx_chol(d, At, L, lowreg):
     return L, reg, (r, e)
 
 
-def blendenpik_srct(A, b, d, tol, maxit):
+def blendenpik_srct_old(A, b, d, tol, maxit):
     """
     WARNING: this is not yet tested (but its components are tested).
     Run preconditioned conjugate gradients to obtain an approximate solution to

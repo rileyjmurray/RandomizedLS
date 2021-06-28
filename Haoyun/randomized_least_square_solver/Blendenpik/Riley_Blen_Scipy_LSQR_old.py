@@ -5,7 +5,7 @@ from scipy.sparse import linalg as sparla
 from scipy.sparse.linalg import lsqr
 from scipy.linalg import solve_triangular
 
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik import srct_approx_chol
+from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik_old import srct_approx_chol
 from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
 
 

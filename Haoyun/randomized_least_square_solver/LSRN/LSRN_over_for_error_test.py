@@ -1,9 +1,7 @@
 from math import ceil, sqrt
-
 import numpy as np
-from scipy.sparse.linalg import lsqr, LinearOperator
+from scipy.sparse.linalg import LinearOperator
 from numpy.linalg import svd
-
 from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
 
 
@@ -42,8 +40,6 @@ def LSRN_over_for_error_test(A, b, tol=1e-8, gamma=2, iter_lim=1000):
     #####################################################
     # Incorporate the sketching method into the sketch.py
     #####################################################
-
-    relative_normal_equation_error_array, relative_residual_error_array_array = None, None
 
     if m > n:  # over-determined
 
@@ -93,13 +89,12 @@ def LSRN_over_for_error_test(A, b, tol=1e-8, gamma=2, iter_lim=1000):
         absolute_normal_equation_error_array = result[-2]
         relative_residual_error_array = result[-3]
         relative_normal_equation_error_array = result[-4]
+        relative_error_array = result[-5]
 
         x = N.dot(y)
     else:
 
         print("The under-determined case is not implemented.")
 
-
-    # return x, itn, flag, r, relative_normal_equation_error_array, relative_residual_error_array_array
-    return x, itn, flag, r, relative_normal_equation_error_array, relative_residual_error_array, \
+    return x, itn, flag, r, relative_error_array, relative_normal_equation_error_array, relative_residual_error_array, \
            absolute_normal_equation_error_array, absolute_residual_error_array,

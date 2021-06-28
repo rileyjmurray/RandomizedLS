@@ -53,6 +53,8 @@ __all__ = ['lsqr_copy']
 
 import numpy as np
 from math import sqrt
+
+from numpy.linalg import norm
 from scipy.sparse.linalg.interface import aslinearoperator
 
 eps = np.finfo(np.float64).eps
@@ -314,7 +316,11 @@ def lsqr_copy(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
     relative_residual_error_array = []
     absolute_residual_error_array = []
     relative_error_array = []
-    # absolute_normal_equation_error_array = []
+
+    # Compute the true x by direct method
+    # If A is an LinearOperator, convert that to a matrix for the calculation purpose.
+    matrix_A = A @ np.identity(A.shape[1])
+    x_true = np.linalg.multi_dot([np.linalg.inv(np.matmul(matrix_A.T, matrix_A)), matrix_A.T, b])
 
     A = aslinearoperator(A)
     b = np.atleast_1d(b)
@@ -527,6 +533,9 @@ def lsqr_copy(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         relative_residual_error_array.append(test1)
         absolute_residual_error_array.append(rnorm)
 
+        relative_error = norm(x_true-x, 2)/norm(x_true, 2)
+        relative_error_array.append(relative_error)
+
         # relative_error_array.append()
         # The following tests guard against extremely small values of
         # atol, btol  or  ctol.  (The user may have set any or all of
@@ -594,6 +603,6 @@ def lsqr_copy(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         print(str3 + '   ' + str4)
         print(' ')
 
-    return x, istop, itn, r1norm, r2norm, anorm, acond, arnorm, xnorm, var, relative_normal_equation_error_array, \
+    return x, istop, itn, r1norm, r2norm, anorm, acond, arnorm, xnorm, var, relative_error_array, relative_normal_equation_error_array, \
            relative_residual_error_array, absolute_normal_equation_error_array, absolute_residual_error_array,
 

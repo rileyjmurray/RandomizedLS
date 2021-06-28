@@ -122,7 +122,7 @@ def overdetermined_ls_test_matrix_generator(m, n, theta, coherence_type="low", a
 
     # Set the threshold of low, medium and high coherence of matrix A
     lowest_coherence = n / m
-    highest_coherence = 0.99
+    highest_coherence = 0.99999
     medium_coherence = (lowest_coherence + highest_coherence) / 2
 
     column_index_set = np.arange(n)

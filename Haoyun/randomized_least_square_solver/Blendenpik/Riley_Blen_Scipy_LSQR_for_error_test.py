@@ -5,7 +5,7 @@ from scipy.sparse import linalg as sparla
 from scipy.sparse.linalg import lsqr
 from scipy.linalg import solve_triangular
 
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik import srct_approx_chol
+from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik_old import srct_approx_chol
 from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
 
 
@@ -61,7 +61,7 @@ def blendenpik_srct_scipy_lsqr_for_error_test(A, b, d, tol, maxit):
         return p_rmv(A.T @ vec)
 
     A_precond = sparla.LinearOperator(shape=(n, m), matvec=mv, rmatvec=rmv)
-
+    cond_A_precond = np.linalg.cond(A_precond @ np.identity(A_precond.shape[1]))
     result = lsqr_copy(A_precond, b, atol=tol, btol=tol, iter_lim=maxit)
     x = p_mv(result[0])
     flag = result[1]
@@ -71,7 +71,8 @@ def blendenpik_srct_scipy_lsqr_for_error_test(A, b, d, tol, maxit):
     absolute_normal_equation_error_array = result[-2]
     relative_residual_error_array = result[-3]
     relative_normal_equation_error_array = result[-4]
+    relative_error_array = result[-5]
 
     # return x, flag, iternum, (r, e)
-    return x, flag, iternum, (r, e), relative_normal_equation_error_array, relative_residual_error_array, \
-           absolute_normal_equation_error_array, absolute_residual_error_array,
+    return x, flag, iternum, (r, e), relative_error_array, relative_normal_equation_error_array, \
+           relative_residual_error_array, absolute_normal_equation_error_array, absolute_residual_error_array,

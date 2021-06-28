@@ -55,7 +55,7 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
             G = np.random.randn(blk_len, m)
             A_tilde[blk_begin:blk_end, :] = G.dot(A)
 
-        A_tilde = A_tilde * 1000
+        # A_tilde = A_tilde * 1000
 
         U_tilde, Sigma_tilde, VH_tilde = svd(A_tilde, False)
         # t = U_tilde.dtype.char.lower()
@@ -63,10 +63,7 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
         # determine the new rank
         rcond = Sigma_tilde[0] * np.min(A.shape) * np.finfo(float).eps
         r_tol = rcond
-
         r = np.sum(Sigma_tilde > r_tol)
-        # print('\t Dropped rank by %s' % (n - r))
-
         N = VH_tilde[:r, :].T / Sigma_tilde[:r]
 
         def LSRN_matvec(v):
@@ -75,29 +72,17 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
         def LSRN_rmatvec(v):
             return N.T.dot(A.T.dot(v))
 
-        # re-estimate gamma
-        gamma_new = s / r
-        # estimate the condition number of AN
-        cond_AN = (sqrt(gamma_new) + 1) / (sqrt(gamma_new) - 1)
 
         AN = LinearOperator(shape=(m, r), matvec=LSRN_matvec, rmatvec=LSRN_rmatvec)
-        result = lsqr(AN, b, atol=tol / cond_AN, btol=tol / cond_AN, iter_lim=iter_lim)
+        result = lsqr_copy(AN, b, atol=tol, btol=tol, iter_lim=iter_lim)
 
         y = result[0]
         flag = result[1]
         itn = result[2]
-        # r1norm = result[3]
-        # r2norm = result[4]
-        # anorm = result[5]
-        # acond = result[6]
-        # arnorm = result[7]
-        relative_residual_error_array_array = result[-1]
-        relative_normal_equation_error_array = result[-2]
+
         x = N.dot(y)
     else:
 
         print("The under-determined case is not implemented.")
 
-    # return x, itn, flag, r1norm, r2norm, anorm, acond, arnorm, r
-    # return x, itn, flag, r, relative_normal_equation_error_array, relative_residual_error_array_array
     return x, itn, flag, r
