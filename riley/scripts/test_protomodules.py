@@ -5,13 +5,22 @@ from riley.protomodules.preconditioners import iid_sparse_precond
 from riley.protomodules.preconditioners import fixed_sparse_precond
 
 
+def bad_mat(n_rows, n_cols, scale):
+    A = np.random.normal(0, 1, (n_rows, n_cols))
+    QA, RA = np.linalg.qr(A)
+    damp = 1 / np.sqrt(1 + scale * np.arange(n_cols))
+    RA *= damp
+    A_bad = QA @ RA
+    return A_bad
+
+
 class TestLinSys(unittest.TestCase):
 
     def test_blendenpik_lsqr(self):
         np.random.seed(0)
         n, m = 1000, 50
         d = 3*50
-        A = np.random.randn(n, m)
+        A = bad_mat(n, m, scale=1000)
         x0 = np.random.randn(m)
         b0 = A @ x0
         b = b0 + 0.05 * np.random.randn(n)
@@ -31,8 +40,7 @@ class TestSketching(unittest.TestCase):
         num_trials = 10
         errs = np.zeros(num_trials)
         for t in range(num_trials):
-            A = np.random.randn(n, m)
-            A *= 100 * np.random.rand(m)
+            A = bad_mat(n, m, scale=1000)
             G = A.T @ A
             R, _ = srct_precond(A, d, 1e-8)
             R[np.tril_indices(m, k=-1)] = 0.0
@@ -53,8 +61,7 @@ class TestSketching(unittest.TestCase):
         num_trials = 10
         errs = np.zeros(num_trials)
         for t in range(num_trials):
-            A = np.random.randn(n, m)
-            A *= 100 * np.random.rand(m)
+            A = bad_mat(n, m, scale=1000)
             G = A.T @ A
             R = fixed_sparse_precond(A, d, col_nnz, 1e-8)
             R[np.tril_indices(m, k=-1)] = 0.0
@@ -74,8 +81,7 @@ class TestSketching(unittest.TestCase):
         num_trials = 10
         errs = np.zeros(num_trials)
         for t in range(num_trials):
-            A = np.random.randn(n, m)
-            A *= 100 * np.random.rand(m)
+            A = bad_mat(n, m, scale=1000)
             G = A.T @ A
             R = iid_sparse_precond(A, d, 0.3, 1e-8)
             R[np.tril_indices(m, k=-1)] = 0.0
