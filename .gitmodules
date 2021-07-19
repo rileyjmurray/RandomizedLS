@@ -1,0 +1,3 @@
+[submodule "ristretto"]
+	path = ristretto
+	url = https://github.com/erichson/ristretto.git
