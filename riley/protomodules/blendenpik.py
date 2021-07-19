@@ -1,68 +1,7 @@
 import numpy as np
 from scipy.sparse import linalg as sparla
-import scipy as sp
-from scipy.linalg import lapack
-from scipy.linalg import solve_triangular, qr as qr_factorize
-from scipy.fft import dct
-
-
-def apply_srct(r, e, mat, perm=None):
-    """
-    Apply a subsampled randomized cosine transform (SRCT) to the columns
-    of the ndarray mat. The transform is defined by data (r, e).
-
-    Parameters
-    ----------
-    r : ndarray
-        The random restriction used in the SRCT. The entries of "r" must
-        be unique integers between 0 and mat.shape[0] (exclusive).
-    e : ndarray
-        The vector of signs used in the SRCT; e.size == mat.shape[0].
-    mat : ndarray
-        The operand for the embedding. If mat.ndim == 1, then simply apply
-        the SRCT to mat as a vector.
-    perm : ndarray
-        permutation of range(mat.shape[0]).
-
-    Returns
-    -------
-    mat : ndarray
-        The transformed input.
-    """
-    if mat.ndim > 1:
-        if perm is not None:
-            mat = mat[perm, :]
-        mat = mat * e[:, None]
-        mat = dct(mat, axis=0, norm='ortho')
-        mat = mat[r, :]
-    else:
-        if perm is not None:
-            mat = mat[perm]
-        mat = mat * e
-        mat = dct(mat, norm='ortho')
-        mat = mat[r]
-    return mat
-
-
-def srct_precond(A, d, reg=1e-6):
-    n, m = A.shape
-    r = np.random.choice(n, size=d, replace=False)
-    e = np.random.rand(n)
-    e[e > 0.5] = 1.0
-    e[e != 1] = -1.0
-    e *= np.sqrt(n / d)
-
-    def srft(mat):
-        return apply_srct(r, e, mat, None)
-
-    S = sparla.LinearOperator(shape=(d, n), matvec=srft, matmat=srft)
-    Aske = S @ A
-    try:
-        R = qr_factorize(Aske, mode='economic')[1]
-    except sp.linalg.LinAlgError:
-        Aske = np.row_stack((Aske, reg*np.eye(n)))
-        R = qr_factorize(Aske, mode='economic')[1]
-    return R, (r, e)
+from riley.protomodules.preconditioners import srct_precond
+from scipy.linalg import solve_triangular
 
 
 def blendenpik_srct(A, b, d, tol, maxit):
