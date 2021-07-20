@@ -38,7 +38,7 @@ def blendenpik_srct(A, b, d, tol, maxit):
         Define the SRCT used when sketching the matrix A.
     """
     n, m = A.shape  # n >> m
-    R, (r, e) = srct_precond(A, d, 1e-6)
+    R, Q = srct_precond(A, d, 1e-6)
     # rhs = A.T @ b
     # x = np.zeros(m)
     # residuals = -np.ones(maxit)
@@ -64,4 +64,4 @@ def blendenpik_srct(A, b, d, tol, maxit):
     x = p_mv(result[0])
     flag = result[1]
     iternum = result[2]
-    return x, flag, iternum, (r, e)
+    return x, flag, iternum

@@ -24,7 +24,7 @@ class TestLinSys(unittest.TestCase):
         x0 = np.random.randn(m)
         b0 = A @ x0
         b = b0 + 0.05 * np.random.randn(n)
-        x_bp, flag, iternum, _ = blendenpik_srct(A, b, d, 1e-8, m)
+        x_bp, flag, iternum = blendenpik_srct(A, b, d, 1e-8, m)
         self.assertLessEqual(iternum / m, 0.85)
         x_np = np.linalg.lstsq(A, b)[0]
         self.assertAlmostEqual(np.linalg.norm(x_bp - x_np), 0.0, places=4)
@@ -63,7 +63,7 @@ class TestSketching(unittest.TestCase):
         for t in range(num_trials):
             A = bad_mat(n, m, scale=1000)
             G = A.T @ A
-            R = fixed_sparse_precond(A, d, col_nnz, 1e-8)
+            R, _ = fixed_sparse_precond(A, d, col_nnz, 1e-8)
             R[np.tril_indices(m, k=-1)] = 0.0
             Rinv = np.linalg.inv(R)
             Gprecond = Rinv.T @ G @ Rinv
@@ -83,7 +83,7 @@ class TestSketching(unittest.TestCase):
         for t in range(num_trials):
             A = bad_mat(n, m, scale=1000)
             G = A.T @ A
-            R = iid_sparse_precond(A, d, 0.3, 1e-8)
+            R, Q = iid_sparse_precond(A, d, 0.3, 1e-8)
             R[np.tril_indices(m, k=-1)] = 0.0
             Rinv = np.linalg.inv(R)
             Gprecond = Rinv.T @ G @ Rinv

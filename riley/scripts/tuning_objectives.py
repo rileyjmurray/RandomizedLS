@@ -271,7 +271,7 @@ if __name__ == '__main__':
     d = n_cols + 1  # excessive
     arc = 50
     A, b = overdetermined_ls_test_matrix_generator(n_rows, n_cols, 0.5,
-                                                   coherence_type='high', added_row_count=5,
+                                                   coherence_type='high', added_row_count=arc,
                                                    fill_diagonal_method='arithmetic', a_cond=np.log2(1e4))
 
     tol = 1e-8

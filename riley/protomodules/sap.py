@@ -1,10 +1,19 @@
 """
 Sketch and precondition
 """
-import numpy as np
-from scipy.sparse import linalg as sparla
 from scipy.linalg import solve_triangular
 from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
+import riley.protomodules.preconditioners as pc
+
+
+def sketch_and_precond(A, b, S, tol, maxit):
+    R, Q = pc.sketch_and_factor(S, A, reg=1e-8)
+    b_ske = S @ b
+    x_ske = solve_triangular(R, Q.T @ b_ske, lower=False)
+    b_remainder = b - A @ x_ske
+    x_rem, flag, iternum = upper_tri_precond_lsqr(A, b_remainder, R, tol, maxit)
+    x = x_ske + x_rem
+    return x, flag, iternum
 
 
 def upper_tri_precond_lsqr(A, b, R, tol, maxit):
@@ -32,25 +41,9 @@ def upper_tri_precond_lsqr(A, b, R, tol, maxit):
     flag
     iternum
     """
-    n, m = A.shape  # n >> m
-
-    def p_mv(vec):
-        # return y = inv(R) @ vec
-        return solve_triangular(R, vec, lower=False)
-
-    def p_rmv(vec):
-        return solve_triangular(R, vec, 'T', lower=False)
-
-    def mv(vec):
-        return A @ (p_mv(vec))
-
-    def rmv(vec):
-        return p_rmv(A.T @ vec)
-
-    A_precond = sparla.LinearOperator(shape=(n, m), matvec=mv, rmatvec=rmv)
-
+    A_precond = pc.a_inv_r(A, R)
     result = lsqr_copy(A_precond, b, atol=tol, btol=tol, iter_lim=maxit)[:8]
-    x = p_mv(result[0])
+    x = solve_triangular(R, result[0], lower=False)
     flag = result[1]
     iternum = result[2]
     return x, flag, iternum
