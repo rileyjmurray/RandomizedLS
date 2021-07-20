@@ -1,4 +1,5 @@
 import numpy as np
+from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
 from scipy.sparse import linalg as sparla
 from riley.protomodules.preconditioners import srct_precond
 from scipy.linalg import solve_triangular
@@ -60,7 +61,7 @@ def blendenpik_srct(A, b, d, tol, maxit):
 
     A_precond = sparla.LinearOperator(shape=(n, m), matvec=mv, rmatvec=rmv)
 
-    result = sparla.lsqr(A_precond, b, atol=tol, btol=tol, iter_lim=maxit)[:8]
+    result = lsqr_copy(A_precond, b, atol=tol, btol=tol, iter_lim=maxit)[:8]
     x = p_mv(result[0])
     flag = result[1]
     iternum = result[2]

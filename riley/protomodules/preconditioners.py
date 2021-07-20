@@ -73,5 +73,5 @@ def a_inv_r(A, R):
     def rmv(vec):
         return p_rmv(A.T @ vec)
 
-    A_precond = sparla.LinearOperator(shape=(n, m), matvec=mv, rmatvec=rmv)
+    A_precond = sparla.LinearOperator(shape=A.shape, matvec=mv, rmatvec=rmv)
     return A_precond
