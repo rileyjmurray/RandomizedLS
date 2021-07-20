@@ -1,7 +1,9 @@
 import numpy as np
+import riley.protomodules.preconditioners as pc
+import riley.protomodules.sap as sap
 from riley.protomodules.preconditioners import iid_sparse_precond
 from riley.protomodules.preconditioners import fixed_sparse_precond
-from riley.protomodules.sap import upper_tri_precond_lsqr
+import time
 
 _COND_NUM_ = True
 
@@ -24,8 +26,8 @@ def sparse_sketch_tuning_objective(A, b, d, tol, maxit, sparsity_type='iid'):
         raise ValueError(msg)
     if sparsity_type == 'iid':
         def objective(density):
-            R = iid_sparse_precond(A, d, density)
-            x, flag, iternum = upper_tri_precond_lsqr(A, b, R, tol, maxit)
+            R, _ = iid_sparse_precond(A, d, density)
+            x, flag, iternum = sap.upper_tri_precond_lsqr(A, b, R, tol, maxit)
             if _COND_NUM_:
                 cn = np.linalg.cond(A @ np.linalg.inv(R))
                 print('Preconditioned system condition number: %s' % str(cn))
@@ -33,8 +35,8 @@ def sparse_sketch_tuning_objective(A, b, d, tol, maxit, sparsity_type='iid'):
         return objective
     elif sparsity_type == 'fixed':
         def objective(col_nnz):
-            R = fixed_sparse_precond(A, d, col_nnz)
-            x, flag, iternum = upper_tri_precond_lsqr(A, b, R, tol, maxit)
+            R, _ = fixed_sparse_precond(A, d, col_nnz)
+            x, flag, iternum = sap.upper_tri_precond_lsqr(A, b, R, tol, maxit)
             if _COND_NUM_:
                 cn = np.linalg.cond(A @ np.linalg.inv(R))
                 print('Preconditioned system condition number: %s' % str(cn))
@@ -44,20 +46,34 @@ def sparse_sketch_tuning_objective(A, b, d, tol, maxit, sparsity_type='iid'):
         raise ValueError()
 
 
-def bad_mat(n_rows, n_cols, scale):
-    A = np.random.normal(0, 1, (n_rows, n_cols))
-    QA, RA = np.linalg.qr(A)
-    damp = 1 / np.sqrt(1 + scale * np.arange(n_cols))
-    RA *= damp
-    A_bad = QA @ RA
-    return A_bad
+def srct_tuning_objective(A, b, tol, maxit, num_dct=1):
+    """
+    Return a function handle "objective" that
+        (1) accepts an embedding dimension "d" for an SRCT sketch,
+        (2) uses sketch-and-precondition to solve OLS with problem data (A, b) to precision "tol",
+            as measured by SciPy's LSQR termination criteria,
+        (3) reports the wallclock time needed to perform step (2).
 
+    Calling this objective function multiple times with the same value of "d"
+    should only see minor changes in the result. If you call objective(d)
+    then reset the random seed before calling objective(d) again, you should
+    get the same result.
+    """
+    if num_dct != 1:
+        msg = 'Future implementations can allow more than one pass of the DCT.'
+        raise NotImplementedError(msg)
 
-import numpy as np
-from numpy.linalg import norm
-import random
-import math
-from scipy.sparse.linalg import lsqr
+    def objective(_d):
+        _d = int(_d)
+        tic = time.time()
+        S = pc.srct_embedding(_d, A.shape[0])
+        x, flag, iternum = sap.sketch_and_precond(A, b, S, tol, maxit)
+        # ^ We don't need the return values here, but we'll keep them for debugging.
+        toc = time.time()
+        elapsed = toc - tic
+        return elapsed
+
+    return objective
 
 
 def overdetermined_ls_test_matrix_generator(m, n, theta, coherence_type="low", added_row_count=1, seednum=123, diagonal=None,
@@ -71,6 +87,9 @@ def overdetermined_ls_test_matrix_generator(m, n, theta, coherence_type="low", a
     distributed uniformly in [0, a_cond]. Defaults to 24, assuming machine precision is 2^{-24} Returns: A (m x n
     matrix), b (n x 1 matrix) TO-DO: 1. Add Householders Transformation / Given Rotations from Lawn 9
     """
+    from numpy.linalg import norm
+    import random
+    import math
     # ----------------------------------------------------------------------------------------------------------------------------
     # 1. Check whether the number of rows to add is smaller than the upper bound(the number of columns of A)
     # ----------------------------------------------------------------------------------------------------------------------------
@@ -279,3 +298,6 @@ if __name__ == '__main__':
 
     iid_obj = sparse_sketch_tuning_objective(A, b, d, tol, maxit, 'iid')
     fixed_obj = sparse_sketch_tuning_objective(A, b, d, tol, maxit, 'fixed')
+
+    np.random.seed(0)
+    srct_obj = srct_tuning_objective(A, b, tol, maxit)

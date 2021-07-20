@@ -47,7 +47,7 @@ def upper_tri_precond_lsqr(A, b, R, tol, maxit, x0=None):
     """
     A_precond = pc.a_inv_r(A, R)
     if x0 is not None:
-        x0 = R @ x0
+        x0 = (R @ x0).ravel()
         result = lsqr(A_precond, b, atol=tol, btol=tol, iter_lim=maxit, x0=x0)[:8]
     else:
         result = lsqr(A_precond, b, atol=tol, btol=tol, iter_lim=maxit)[:8]
