@@ -2,6 +2,7 @@
 Sketch and precondition
 """
 from scipy.linalg import solve_triangular
+from scipy.sparse.linalg import lsqr
 from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
 import riley.protomodules.preconditioners as pc
 import numpy as np
@@ -47,9 +48,9 @@ def upper_tri_precond_lsqr(A, b, R, tol, maxit, x0=None):
     A_precond = pc.a_inv_r(A, R)
     if x0 is not None:
         x0 = R @ x0
-        result = lsqr_copy(A_precond, b, atol=tol, btol=tol, iter_lim=maxit, x0=x0)[:8]
+        result = lsqr(A_precond, b, atol=tol, btol=tol, iter_lim=maxit, x0=x0)[:8]
     else:
-        result = lsqr_copy(A_precond, b, atol=tol, btol=tol, iter_lim=maxit)[:8]
+        result = lsqr(A_precond, b, atol=tol, btol=tol, iter_lim=maxit)[:8]
     x = solve_triangular(R, result[0], lower=False)
     flag = result[1]
     iternum = result[2]
