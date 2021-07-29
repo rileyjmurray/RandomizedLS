@@ -3,7 +3,7 @@ import scipy.linalg as la
 import riley.protomodules.ralas as rs
 
 
-def gaussian_sketch(n_rows, n_cols)
+def gaussian_sketch(n_rows, n_cols):
     omega = np.random.standard_normal(size=(n_rows, n_cols))
     return omega
 
