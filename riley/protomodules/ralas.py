@@ -5,7 +5,7 @@ import numpy as np
 import scipy.linalg as la
 
 
-def oblique_rangefinder(A, k, num_pass, sketch_op_gen, stabilizer, aps):
+def raw_rangefinder(A, k, num_pass, sketch_op_gen, stabilizer, aps):
     """ 
     For an m-by-n input matrix A, return a randomly generated matrix Y with
     m rows and k << min(A.shape) columns. We want the range of Y to be
@@ -78,6 +78,6 @@ def rangefinder(A, k, num_pass, sketch_op_gen=None, aps=1):
     def stabilizer(mat):
         return la.qr(mat, mode='economic')[0]
 
-    Y = oblique_rangefinder(A, k, num_pass, sketch_op_gen, stabilizer, aps)
+    Y = raw_rangefinder(A, k, num_pass, sketch_op_gen, stabilizer, aps)
     Q = la.qr(Y, mode='economic')[0]
     return Q

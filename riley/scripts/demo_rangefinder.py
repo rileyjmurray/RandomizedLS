@@ -1,4 +1,4 @@
-from riley.protomodules.ralas import oblique_rangefinder, rangefinder
+from riley.protomodules.ralas import raw_rangefinder, rangefinder
 import numpy as np
 import scipy.linalg as la
 
