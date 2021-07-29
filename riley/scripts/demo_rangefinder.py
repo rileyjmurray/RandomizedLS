@@ -1,4 +1,4 @@
-from riley.protomodules.ralas import raw_rangefinder, rangefinder
+from riley.protomodules.ralas import power_rangefinder
 import numpy as np
 import scipy.linalg as la
 
@@ -15,7 +15,7 @@ def run_rangefinders(max_pass, min_pass, max_k, min_k, A, aps=1):
         print('\nUsing %s passes' % str(num_pass))
         for ik, currk in enumerate(range(min_k, max_k)):
             np.random.seed(0)
-            Q = rangefinder(A, k=currk, num_pass=num_pass, aps=aps)
+            Q = power_rangefinder(A, k=currk, num_pass=num_pass, pps=aps)
             res = residual(Q, A)
             # Best rank "currk" approx of A would result in a residual
             # with operator norm of s[currk].
