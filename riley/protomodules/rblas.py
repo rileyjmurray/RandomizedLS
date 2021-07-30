@@ -5,12 +5,12 @@ import numpy as np
 import scipy.linalg as la
 
 
-def powered_range_sketch_op(A, k, num_pass, sketch_op_gen, stabilizer, pps):
+def powered_range_sketch_op(A, k, num_pass, sketch_op_gen, stabilizer, pps, **kwargs):
     """
-    Use (num_pass - 1) passes over the matrix A to generate a matrix S whose
-    range is (hopefully) closely aligned with the span of the top *right*
-    singular vectors of A. This is useful for estimating the span of the top
-    *left* singular vectors of A by evaluating Y = A @ S.
+    Use (num_pass - 1) passes over the matrix A to generate a matrix S where
+    range(S) is (hopefully) closely aligned with the span of A's top right
+    singular vectors. This is useful for estimating the span of the top
+    *left* singular vectors of A, by evaluating Y = A @ S.
 
     We accomplish this roughly as follows:
 

@@ -1,4 +1,4 @@
-from riley.protomodules.ralas import power_rangefinder
+from riley.protomodules.rblas import power_rangefinder
 import numpy as np
 import scipy.linalg as la
 

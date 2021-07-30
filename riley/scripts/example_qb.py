@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.linalg as la
-import riley.protomodules.ralas as rs
+import riley.protomodules.rblas as rs
 
 
 def gaussian_sketch(n_rows, n_cols):
@@ -59,9 +59,9 @@ def rand_qb_b_pe_fet(A, blk, ell, tol, p):
         Qi, Ri = la.qr(Yi, mode='economic', pivoting=False)
         Qi, Rihat = la.qr(Qi - Q @ (Q.T @ Qi), mode='economic', pivoting=False)
         Ri = Rihat @ Ri
-        # Bi = R^{-T} H[:, blk_start:blk_end].T - Yi.T @ Q @ B - BSi.T @ B
-        temp =  H[:, blk_start:blk_end].T - (Yi.T @ Q) @ B - BSi.T @ B
-        Bi = la.solve_triangular(Ri, temp, trans='T')
+        # Bi = R^{-T} (H[:, blk_start:blk_end].T - Yi.T @ Q @ B - BSi.T @ B)
+        rhs = H[:, blk_start:blk_end].T - (Yi.T @ Q) @ B - BSi.T @ B
+        Bi = la.solve_triangular(Ri, rhs, trans='T')
         Q = np.column_stack((Q, Qi))
         B = np.row_stack((B, Bi))
         sqnorm_A = sqnorm_A - la.norm(Bi, ord='fro')**2
