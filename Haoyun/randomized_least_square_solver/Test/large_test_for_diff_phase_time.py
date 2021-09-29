@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from Haoyun.randomized_least_square_solver.Test.Blendenpik.Riley_Blendenpik_new import blendenpik_srct
 from test_matrix_generator import overdetermined_ls_test_matrix_generator
-from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over_without_mpi
 
 # Set the tolerance to be 1e-12
 tol = 1e-12
@@ -140,7 +140,7 @@ for cond_num_index in np.arange(cond_num_array_length):
             # print("\tThe iteration number is:", iternum1)
             # print("\tThe flag is:", flag1)
 
-            x2, iternum2, flag2, _, timing2, flops2 = LSRN_over(A, b, gamma=oversampling_factor, tol=tol)
+            x2, iternum2, flag2, _, timing2, flops2 = LSRN_over_without_mpi(A, b, gamma=oversampling_factor, tol=tol)
             r2 = b - A @ x2
 
             # lsrn_relative_normal_equation_error_matrix[oversampling_factor_index, seednum_index] = norm(A.transpose() @ r2) / (norm(A) * norm(A) * norm(x2))

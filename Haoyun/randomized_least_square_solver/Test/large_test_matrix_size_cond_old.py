@@ -5,7 +5,7 @@ from numpy.linalg import norm
 from scipy.sparse.linalg import lsqr
 
 from Haoyun.randomized_least_square_solver.Test.Blendenpik import blendenpik_srct_scipy_lsqr
-from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over_without_mpi
 from Haoyun.randomized_least_square_solver.Test.test_matrix_generator import overdetermined_ls_test_matrix_generator
 
 import seaborn as sns
@@ -100,7 +100,7 @@ for cond_num_index in np.arange(cond_len):
 
             # LSRN
             t2 = perf_counter()
-            x2, iternum3 = LSRN_over(A, b, tol=1e-14, iter_lim=2000)[:2]
+            x2, iternum3 = LSRN_over_without_mpi(A, b, tol=1e-14, iter_lim=2000)[:2]
             t3 = perf_counter() - t2
 
             LSRN_iternum_matrix[cond_num_index, m_div_1000_index] += iternum3

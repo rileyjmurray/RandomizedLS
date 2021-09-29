@@ -1,14 +1,15 @@
 from math import ceil
 import numpy as np
-from scipy.sparse.linalg import LinearOperator
+from scipy.sparse.linalg import LinearOperator, lsqr
 from numpy.linalg import svd
-from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
+# from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
 from mpi4py import MPI
+from barrier import barrier
 from time import perf_counter
 from zignor import randn
 
 
-def LSRN_over_without_mpi(A, b, tol=1e-8, gamma=2, iter_lim=1000, comm=MPI.COMM_WORLD):
+def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
     """
     LSRN computes the min-length solution of linear least squares via LSQR with
     randomized preconditioning
@@ -44,7 +45,7 @@ def LSRN_over_without_mpi(A, b, tol=1e-8, gamma=2, iter_lim=1000, comm=MPI.COMM_
 
     m, n = A.shape
 
-    timing = {'randn': 0.0, 'mult': 0.0, 'randn_and_mult': 0.0, 'svd': 0.0, 'iter': 0.0, 'comm': 0.0, 'all': 0.0}
+    timing = {'randn': 0.0, 'mult': 0.0, 'svd': 0.0, 'iter': 0.0, 'comm': 0.0, 'all': 0.0}
     flops = {'randn': 0.0, 'mult': 0.0, 'svd': 0.0, 'iter': 0.0, 'comm': 0.0, 'all': 0.0}
 
     # rank = comm.Get_rank()
@@ -67,6 +68,11 @@ def LSRN_over_without_mpi(A, b, tol=1e-8, gamma=2, iter_lim=1000, comm=MPI.COMM_
             A_tilde[blk_begin:blk_end, :] = np.matmul(G, A)
             timing['mult'] += perf_counter() - tic_mult
 
+        # tic_comm = perf_counter()
+        # A_tilde = comm.reduce(A_tilde)
+        # timing['comm'] += perf_counter() - tic_comm
+
+        # if rank == 0:
         tic_svd = perf_counter()
         U_tilde, Sigma_tilde, VH_tilde = svd(A_tilde, False)
         rcond = np.min([m, n]) * np.finfo(float).eps
@@ -75,6 +81,8 @@ def LSRN_over_without_mpi(A, b, tol=1e-8, gamma=2, iter_lim=1000, comm=MPI.COMM_
         N = VH_tilde[:r, :].T / Sigma_tilde[:r]
         timing['svd'] += perf_counter() - tic_svd
 
+        # else:
+        #     N = None
 
         # U_tilde, Sigma_tilde, VH_tilde = svd(A_tilde, False)
         # rcond = np.min(A.shape) * np.finfo(float).eps
@@ -82,6 +90,12 @@ def LSRN_over_without_mpi(A, b, tol=1e-8, gamma=2, iter_lim=1000, comm=MPI.COMM_
         # r = np.sum(Sigma_tilde > r_tol)
         #
         # N = VH_tilde[:r, :].T / Sigma_tilde[:r]
+
+        # barrier(comm)
+
+        # tic_comm = perf_counter()
+        # N = comm.bcast(N)
+        # timing['comm'] += perf_counter() - tic_comm
 
         tic_iter = perf_counter()
 
@@ -112,7 +126,7 @@ def LSRN_over_without_mpi(A, b, tol=1e-8, gamma=2, iter_lim=1000, comm=MPI.COMM_
         AN = LinearOperator(shape=(m, r), matvec=LSRN_matvec, rmatvec=LSRN_rmatvec)
         # AN = LinearOperator(shape=(m, r), matvec=mv, rmatvec=rmv)
 
-        result = lsqr_copy(AN, b, atol=tol, btol=tol, iter_lim=iter_lim)
+        result = lsqr(AN, b, atol=tol, btol=tol, iter_lim=iter_lim)
 
         y = result[0]
         flag = result[1]
@@ -126,8 +140,6 @@ def LSRN_over_without_mpi(A, b, tol=1e-8, gamma=2, iter_lim=1000, comm=MPI.COMM_
         print("The under-determined case is not implemented.")
 
     timing['all'] = perf_counter() - tic_all
-
-    timing['randn_and_mult'] = timing['randn'] + timing['mult']
 
     # Calculate the flops
 

@@ -1,7 +1,7 @@
 from math import pi
 from time import perf_counter
 from numpy.linalg import norm
-from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over_without_mpi
 from Haoyun.randomized_least_square_solver.Test.test_matrix_generator import \
     overdetermined_ls_test_matrix_generator
 
@@ -20,7 +20,7 @@ A_low, _, b_low = overdetermined_ls_test_matrix_generator(m=10000,
 b_low = b_low.ravel()
 
 t1_low = perf_counter()
-x1_low, iternum1_low, flag1_low, _, _, _ = LSRN_over(A_low, b_low, tol=1e-14, gamma=2)
+x1_low, iternum1_low, flag1_low, _, _, _ = LSRN_over_without_mpi(A_low, b_low, tol=1e-14, gamma=2)
 t2_low = perf_counter() - t1_low
 r1_low = b_low - A_low @ x1_low
 
@@ -46,7 +46,7 @@ A_medium, _, b_medium = overdetermined_ls_test_matrix_generator(m=10000,
 b_medium = b_medium.ravel()
 
 t1_medium = perf_counter()
-x1_medium, iternum1_medium, flag1_medium, _ = LSRN_over(A_medium, b_medium, tol=1e-14, gamma=2)
+x1_medium, iternum1_medium, flag1_medium, _ = LSRN_over_without_mpi(A_medium, b_medium, tol=1e-14, gamma=2)
 t2_medium = perf_counter() - t1_medium
 r1_medium = b_medium - A_medium @ x1_medium
 
@@ -72,7 +72,7 @@ A_high, _, b_high = overdetermined_ls_test_matrix_generator(m=10000,
 b_high = b_high.ravel()
 
 t1_high = perf_counter()
-x1_high, iternum1_high, flag1_high, _ = LSRN_over(A_high, b_high, tol=1e-14, gamma=2)
+x1_high, iternum1_high, flag1_high, _ = LSRN_over_without_mpi(A_high, b_high, tol=1e-14, gamma=2)
 t2_high = perf_counter() - t1_high
 r1_high = b_high - A_high @ x1_high
 

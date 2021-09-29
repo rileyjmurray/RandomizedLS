@@ -3,7 +3,7 @@ import numpy as np
 from Haoyun.randomized_least_square_solver.Test.LSRN.LSRN_over_control_precison import LSRN_over_control_precision
 from test_matrix_generator import overdetermined_ls_test_matrix_generator
 from time import perf_counter
-from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over_without_mpi
 from numpy.linalg import norm
 
 # Small Test For Testing LSRN With Different Precisions
@@ -41,7 +41,7 @@ for seednum in seednum_array:
     b = b.ravel()
 
     t1 = perf_counter()
-    x1, iternum1, flag1, _ = LSRN_over(A, b, tol=1e-10)
+    x1, iternum1, flag1, _ = LSRN_over_without_mpi(A, b, tol=1e-10)
     t2 = perf_counter() - t1
     r1 = b - A @ x1
 

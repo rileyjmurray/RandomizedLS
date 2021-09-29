@@ -1,6 +1,6 @@
 from test_matrix_generator import overdetermined_ls_test_matrix_generator
 from time import perf_counter
-from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over_without_mpi
 from Haoyun.randomized_least_square_solver.Test.Blendenpik.Riley_Blendenpik_new import blendenpik_srct
 from numpy.linalg import norm
 
@@ -32,7 +32,7 @@ b = b.ravel()
 # print("\tThe flag is:", flag1)
 
 t3 = perf_counter()
-x2, iternum2, flag2, _ = LSRN_over(A, b, tol=tol)
+x2, iternum2, flag2, _ = LSRN_over_without_mpi(A, b, tol=tol)
 t4 = perf_counter() - t3
 r2 = b - A @ x2
 

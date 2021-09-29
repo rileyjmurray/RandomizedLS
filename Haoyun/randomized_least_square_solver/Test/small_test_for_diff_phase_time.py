@@ -2,7 +2,7 @@ import numpy as np
 from Haoyun.randomized_least_square_solver.Test.Blendenpik.Riley_Blendenpik_new import blendenpik_srct
 from Haoyun.randomized_least_square_solver.Test.LSRN.LSRN_over_without_mpi import LSRN_over_without_mpi
 from test_matrix_generator import overdetermined_ls_test_matrix_generator
-from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over_without_mpi
 from numpy.linalg import norm
 
 # Small Test For Choosing Condition Number of Test Matrix
@@ -74,7 +74,7 @@ for seednum in seednum_array:
     # print("\tThe iteration number is:", iternum1)
     # print("\tThe flag is:", flag1)
 
-    x2, iternum2, flag2, _, timing2, flops2 = LSRN_over(A, b, tol=tol)
+    x2, iternum2, flag2, _, timing2, flops2 = LSRN_over_without_mpi(A, b, tol=tol)
     r2 = b - A @ x2
 
     # lsrn_relative_normal_equation_error_list.append(norm(A.transpose() @ r2) / (norm(A) * norm(A) * norm(x2)))

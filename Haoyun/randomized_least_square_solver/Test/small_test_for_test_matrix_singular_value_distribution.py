@@ -1,7 +1,7 @@
 from time import perf_counter
 import numpy as np
 from numpy.linalg import norm
-from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over_without_mpi
 from Haoyun.randomized_least_square_solver.Test.test_matrix_generator import \
     overdetermined_ls_test_matrix_generator
 
@@ -46,7 +46,7 @@ for seednum in seednum_array:
     b_one_small = b_one_small.ravel()
 
     t1_one_small = perf_counter()
-    x1_one_small, iternum1_one_small, flag1_one_small, _, _, _ = LSRN_over(A_one_small, b_one_small, tol=tol, gamma=2)
+    x1_one_small, iternum1_one_small, flag1_one_small, _, _, _ = LSRN_over_without_mpi(A_one_small, b_one_small, tol=tol, gamma=2)
     t2_one_small = perf_counter() - t1_one_small
     r1_one_small = b_one_small - A_one_small @ x1_one_small
 
@@ -69,7 +69,7 @@ for seednum in seednum_array:
     b_geometric = b_geometric.ravel()
 
     t1_geometric = perf_counter()
-    x1_geometric, iternum1_geometric, flag1_geometric, _, _, _ = LSRN_over(A_geometric, b_geometric, tol=tol, gamma=2)
+    x1_geometric, iternum1_geometric, flag1_geometric, _, _, _ = LSRN_over_without_mpi(A_geometric, b_geometric, tol=tol, gamma=2)
     t2_geometric = perf_counter() - t1_one_small
     r1_geometric = b_geometric - A_geometric @ x1_geometric
 
@@ -92,7 +92,7 @@ for seednum in seednum_array:
     b_arithmetic = b_arithmetic.ravel()
 
     t1_arithmetic = perf_counter()
-    x1_arithmetic, iternum1_arithmetic, flag1_arithmetic, _, _, _ = LSRN_over(A_arithmetic, b_arithmetic, tol=tol, gamma=2)
+    x1_arithmetic, iternum1_arithmetic, flag1_arithmetic, _, _, _ = LSRN_over_without_mpi(A_arithmetic, b_arithmetic, tol=tol, gamma=2)
     t2_arithmetic = perf_counter() - t1_arithmetic
     r1_arithmetic = b_arithmetic - A_arithmetic @ x1_arithmetic
 
