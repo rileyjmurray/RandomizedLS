@@ -2,9 +2,6 @@ from math import ceil
 import numpy as np
 from scipy.sparse.linalg import LinearOperator, lsqr
 from numpy.linalg import svd
-# from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
-from mpi4py import MPI
-from barrier import barrier
 from time import perf_counter
 from zignor import randn
 
