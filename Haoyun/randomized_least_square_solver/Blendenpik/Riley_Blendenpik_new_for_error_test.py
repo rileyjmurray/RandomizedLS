@@ -130,12 +130,12 @@ def blendenpik_srct_new_for_error_test(A, b, d, tol, maxit):
     flag = result[1]
     iternum = result[2]
 
-    absolute_residual_error_array = result[-1]
-    absolute_normal_equation_error_array = result[-2]
-    relative_residual_error_array = result[-3]
-    relative_normal_equation_error_array = result[-4]
-    relative_error_array = result[-5]
+    absolute_normal_equation_error_list = result[-5]
+    relative_normal_equation_error_list = result[-4]
+    S2_stopping_criteria_error_list = result[-3]
+    relative_residual_error_list = result[-2]
+    relative_error_list = result[-1]
 
     # return x, flag, iternum, (r, e)
-    return x, flag, iternum, (r, e), relative_error_array, relative_normal_equation_error_array, \
-           relative_residual_error_array, absolute_normal_equation_error_array, absolute_residual_error_array,
+    return x, flag, iternum, (r, e), absolute_normal_equation_error_list, relative_normal_equation_error_list, \
+           S2_stopping_criteria_error_list, relative_residual_error_list, relative_error_list

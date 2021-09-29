@@ -1,3 +1,5 @@
+from time import perf_counter
+
 import numpy as np
 from scipy.sparse import linalg as sparla
 import scipy as sp
@@ -47,6 +49,7 @@ def apply_srct(r, e, mat, perm=None):
 
 
 def srct_precond(A, d, reg=1e-6):
+    tic_srct_and_mult = perf_counter()
     n, m = A.shape
     r = np.random.choice(n, size=d, replace=False)
     e = np.random.rand(n)
@@ -56,15 +59,22 @@ def srct_precond(A, d, reg=1e-6):
 
     def srft(mat):
         return apply_srct(r, e, mat, None)
+    # time_srct = perf_counter() - tic_srct
 
+    # tic_mult = perf_counter()
     S = sparla.LinearOperator(shape=(d, n), matvec=srft, matmat=srft)
     Aske = S @ A
+
+    time_srct_and_mult = perf_counter() - tic_srct_and_mult
+
+    tic_qr = perf_counter()
     try:
         R = qr_factorize(Aske, mode='economic')[1]
     except sp.linalg.LinAlgError:
         Aske = np.row_stack((Aske, reg*np.eye(n)))
         R = qr_factorize(Aske, mode='economic')[1]
-    return R, (r, e)
+    time_qr = perf_counter() - tic_qr
+    return R, (r, e), time_srct_and_mult, time_qr
 
 
 def blendenpik_srct(A, b, d, tol, maxit):
@@ -100,13 +110,23 @@ def blendenpik_srct(A, b, d, tol, maxit):
     (r, e) : ndarrays
         Define the SRCT used when sketching the matrix A.
     """
+    tic_all = perf_counter()
+
+    timing = {'srct_and_mult': 0.0, 'qr': 0.0, 'iter': 0.0, 'all': 0.0}
+    flops = {'srct_and_mult': 0.0, 'qr': 0.0, 'iter': 0.0, 'all': 0.0}
+
     n, m = A.shape  # n >> m
-    R, (r, e) = srct_precond(A, d, 1e-6)
+    R, (r, e), time_srct_and_mult, time_qr = srct_precond(A, d, 1e-6)
+
+    timing['srct_and_mult'] = time_srct_and_mult
+    timing['qr'] = time_qr
     # rhs = A.T @ b
     # x = np.zeros(m)
     # residuals = -np.ones(maxit)
     # At = np.ascontiguousarray(A.T)
     # dense_pcg(At, rhs, x, L, tol, maxit, residuals, 0.0)
+
+    tic_iter = perf_counter()
 
     def p_mv(vec):
         # return y = inv(R) @ vec
@@ -127,4 +147,24 @@ def blendenpik_srct(A, b, d, tol, maxit):
     x = p_mv(result[0])
     flag = result[1]
     iternum = result[2]
-    return x, flag, iternum, (r, e)
+    timing['iter'] += perf_counter() - tic_iter
+
+    timing['all'] = perf_counter() - tic_all
+
+    # Calculate the flops
+    # The embedding dimension d does not appear here, because SRCT is naively doing
+    # the subsampling on a vector of length n. Rather than doing the sampling as the part
+    # of the discrete cosine transform. The result is a factor of log2(n) rather than a factor log2(d).
+    flops['srct_and_mult'] = n * m * np.log2(n)
+
+    # QR decomposition, referring to Section 9.3.2 of
+    # https://www.stat.cmu.edu/~ryantibs/convexopt-S15/scribes/09-num-lin-alg-scribed.pdf
+    # Instead of calling SciPy QR, which forms the Q explicitly, should call the LAPACK routine,
+    # which returns an implicit Q.
+
+    # Use the bottom cost when we switch to implicit Q.
+    flops['qr'] = 2 * d * m ** 2 - 2 / 3 * m ** 3
+
+    flops['iter'] = (iternum + 1) * (4 * m * n + 2 * m ** 2)
+    flops['all'] = flops['srct_and_mult'] + flops['qr'] + flops['iter']
+    return x, flag, iternum, (r, e), timing, flops

@@ -85,16 +85,17 @@ def LSRN_over_for_error_test(A, b, tol=1e-8, gamma=2, iter_lim=1000):
         flag = result[1]
         itn = result[2]
 
-        absolute_residual_error_array = result[-1]
-        absolute_normal_equation_error_array = result[-2]
-        relative_residual_error_array = result[-3]
-        relative_normal_equation_error_array = result[-4]
-        relative_error_array = result[-5]
+
+        absolute_normal_equation_error_list = result[-5]
+        relative_normal_equation_error_list = result[-4]
+        S2_stopping_criteria_error_list = result[-3]
+        relative_residual_error_list = result[-2]
+        relative_error_list = result[-1]
 
         x = N.dot(y)
     else:
 
         print("The under-determined case is not implemented.")
 
-    return x, itn, flag, r, relative_error_array, relative_normal_equation_error_array, relative_residual_error_array, \
-           absolute_normal_equation_error_array, absolute_residual_error_array,
+    return x, itn, flag, r, absolute_normal_equation_error_list, relative_normal_equation_error_list, \
+           S2_stopping_criteria_error_list, relative_residual_error_list, relative_error_list
