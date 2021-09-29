@@ -14,7 +14,7 @@ cond_num_array_length = 3
 condition_number_type_array = np.array(['Low', 'Medium', 'High'])
 condition_number_type_array_length = 3
 # Choose some different randomized matrices with different random number seeds
-seednum_array_length = 20
+seednum_array_length = 10
 seednum_array = np.random.choice(10000, seednum_array_length, replace=False)
 
 # Choose the range of oversampling factor to be 1.6 to 2.5, which is specified by the LSRN paper
@@ -22,7 +22,7 @@ oversampling_factor_array = np.arange(1.5, 10.5, 0.25)
 oversampling_factor_array_length = len(oversampling_factor_array)
 
 # Choose matrix size to be row_num * row_num/20
-row_num = 5000
+row_num = 10000
 col_num = int(row_num/20)
 
 # Set the stopping criteria
