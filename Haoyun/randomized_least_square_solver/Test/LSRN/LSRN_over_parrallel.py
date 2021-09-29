@@ -5,10 +5,9 @@ from scipy.sparse.linalg import LinearOperator
 from numpy.linalg import svd
 from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
 from mpi4py import MPI
-from Haoyun.randomized_least_square_solver.LSRN.barrier import barrier
+from Haoyun.randomized_least_square_solver.Test.LSRN.barrier import barrier
 from time import perf_counter
 from zignor import randn
-from joblib import Parallel, delayed
 
 
 def LSRN_over_parallel(A, b, tol=1e-8, gamma=2, iter_lim=1000, comm=MPI.COMM_WORLD):

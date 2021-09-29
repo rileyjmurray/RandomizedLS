@@ -1,9 +1,9 @@
 import csv
 import numpy as np
 from matplotlib import pyplot as plt
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik_new import blendenpik_srct
+from Haoyun.randomized_least_square_solver.Test.Blendenpik.Riley_Blendenpik_new import blendenpik_srct
 from test_matrix_generator import overdetermined_ls_test_matrix_generator
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
 
 # Set the tolerance to be 1e-12
 tol = 1e-12

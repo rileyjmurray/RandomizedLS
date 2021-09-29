@@ -1,12 +1,10 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blen_Scipy_LSQR_for_error_test import \
-    blendenpik_srct_scipy_lsqr_for_error_test
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik_new_for_error_test import \
+from Haoyun.randomized_least_square_solver.Test.Blendenpik.Riley_Blendenpik_new_for_error_test import \
     blendenpik_srct_new_for_error_test
 from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over_for_error_test import LSRN_over_for_error_test
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over_for_error_test
 from test_matrix_generator import overdetermined_ls_test_matrix_generator
 
 condition_number_array = 10 ** np.array([4, 8, 12, 16])

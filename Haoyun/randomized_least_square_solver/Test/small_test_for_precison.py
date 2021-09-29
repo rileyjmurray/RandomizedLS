@@ -1,9 +1,9 @@
 import numpy as np
 
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over_control_precison import LSRN_over_control_precision
+from Haoyun.randomized_least_square_solver.Test.LSRN.LSRN_over_control_precison import LSRN_over_control_precision
 from test_matrix_generator import overdetermined_ls_test_matrix_generator
 from time import perf_counter
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
 from numpy.linalg import norm
 
 # Small Test For Testing LSRN With Different Precisions

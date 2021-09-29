@@ -2,10 +2,9 @@ from Haoyun.randomized_least_square_solver.Test.test_matrix_generator_diff_coher
     overdetermined_ls_test_matrix_generator_diff_coherence
 from time import perf_counter
 from scipy.sparse.linalg import lsqr
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
 import numpy as np
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik_old import blendenpik_srct
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blen_Scipy_LSQR_old import blendenpik_srct_scipy_lsqr
+from Haoyun.randomized_least_square_solver.Test.Blendenpik import blendenpik_srct_scipy_lsqr
 from numpy.linalg import norm
 
 # Small test for observing the behavior of different randomized least square solvers

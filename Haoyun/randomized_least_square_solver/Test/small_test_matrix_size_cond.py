@@ -1,12 +1,7 @@
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blen_Scipy_LSQR_for_error_test import \
-    blendenpik_srct_scipy_lsqr_for_error_test
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over_for_error_test import LSRN_over_for_error_test
-from Haoyun.randomized_least_square_solver.Iter_Solver.CS import CS
-from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
 from test_matrix_generator import overdetermined_ls_test_matrix_generator
 from time import perf_counter
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over import LSRN_over
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik_new import blendenpik_srct
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.Blendenpik.Riley_Blendenpik_new import blendenpik_srct
 from numpy.linalg import norm
 
 # Small Test For Choosing Condition Number of Test Matrix

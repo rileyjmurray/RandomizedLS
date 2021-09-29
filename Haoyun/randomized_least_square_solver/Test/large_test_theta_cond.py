@@ -4,8 +4,8 @@ import numpy as np
 from numpy.linalg import norm
 from scipy.sparse.linalg import lsqr
 
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik_old import blendenpik_srct
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.Blendenpik import blendenpik_srct
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
 from Haoyun.randomized_least_square_solver.Test.test_matrix_generator import overdetermined_ls_test_matrix_generator
 
 import seaborn as sns

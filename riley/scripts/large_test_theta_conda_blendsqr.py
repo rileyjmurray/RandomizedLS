@@ -6,7 +6,7 @@ from scipy.sparse.linalg import lsqr
 
 #from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blen_Scipy_LSQR import blendenpik_srct_scipy_lsqr
 from riley.protomodules.blendenpik import blendenpik_srct as blendenpik_srct_scipy_lsqr
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
 from Haoyun.randomized_least_square_solver.Test.test_matrix_generator import overdetermined_ls_test_matrix_generator
 
 import seaborn as sns

@@ -4,7 +4,6 @@ from scipy.sparse.linalg import LinearOperator
 from numpy.linalg import svd
 from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
 from mpi4py import MPI
-from Haoyun.randomized_least_square_solver.LSRN.barrier import barrier
 from time import perf_counter
 from zignor import randn
 

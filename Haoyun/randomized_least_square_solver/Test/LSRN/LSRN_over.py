@@ -1,10 +1,10 @@
 from math import ceil
 import numpy as np
-from scipy.sparse.linalg import LinearOperator
+from scipy.sparse.linalg import LinearOperator, lsqr
 from numpy.linalg import svd
-from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
+# from Haoyun.randomized_least_square_solver.Iter_Solver.Scipy_LSQR import lsqr_copy
 from mpi4py import MPI
-from Haoyun.randomized_least_square_solver.LSRN.barrier import barrier
+from barrier import barrier
 from time import perf_counter
 from zignor import randn
 
@@ -125,7 +125,7 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000, comm=MPI.COMM_WORLD):
         AN = LinearOperator(shape=(m, r), matvec=LSRN_matvec, rmatvec=LSRN_rmatvec)
         # AN = LinearOperator(shape=(m, r), matvec=mv, rmatvec=rmv)
 
-        result = lsqr_copy(AN, b, atol=tol, btol=tol, iter_lim=iter_lim)
+        result = lsqr(AN, b, atol=tol, btol=tol, iter_lim=iter_lim)
 
         y = result[0]
         flag = result[1]

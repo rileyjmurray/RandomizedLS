@@ -1,14 +1,8 @@
 import numpy as np
-from Haoyun.randomized_least_square_solver.Baseline.Direct_Method import solve_ls_with_QR, \
-    solve_ls_with_normal_equation
-from Haoyun.randomized_least_square_solver.Baseline.Direct_Method_LAPACK import LAPACK_solve_ls_with_QR, \
-    LAPACK_solve_ls_with_normal_equation
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik_new import blendenpik_srct
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over_parrallel import LSRN_over_parallel
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over_without_mpi import LSRN_over_without_mpi
+from Haoyun.randomized_least_square_solver.Test.Blendenpik.Riley_Blendenpik_new import blendenpik_srct
+from Haoyun.randomized_least_square_solver.Test.LSRN.LSRN_over_without_mpi import LSRN_over_without_mpi
 from test_matrix_generator import overdetermined_ls_test_matrix_generator
-from time import perf_counter
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over
 from numpy.linalg import norm
 
 # Small Test For Choosing Condition Number of Test Matrix
