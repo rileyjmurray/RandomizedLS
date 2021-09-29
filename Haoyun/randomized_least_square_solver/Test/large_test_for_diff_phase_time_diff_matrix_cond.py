@@ -14,7 +14,7 @@ cond_num_array_length = 3
 condition_number_type_array = np.array(['Low', 'Medium', 'High'])
 condition_number_type_array_length = 3
 # Choose some different randomized matrices with different random number seeds
-seednum_array_length = 10
+seednum_array_length = 5
 seednum_array = np.random.choice(10000, seednum_array_length, replace=False)
 
 # Choose the range of oversampling factor to be 1.6 to 2.5, which is specified by the LSRN paper
