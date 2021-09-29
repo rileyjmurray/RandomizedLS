@@ -68,6 +68,7 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000, comm=MPI.COMM_WORLD):
 
     flag : int,
     """
+    global r, s, itn, x, flag
     tic_all = perf_counter()
 
     m, n = A.shape
