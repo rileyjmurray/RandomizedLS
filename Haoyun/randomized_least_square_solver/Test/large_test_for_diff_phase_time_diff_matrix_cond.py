@@ -2,7 +2,7 @@ import csv
 import numpy as np
 from Blendenpik.Riley_Blendenpik_new import blendenpik_srct
 from test_matrix_generator import overdetermined_ls_test_matrix_generator
-from LSRN.LSRN_over_without_mpi import LSRN_over
+from LSRN.LSRN_over import LSRN_over
 
 # Set the tolerance to be 1e-12
 tol = 1e-12
@@ -14,7 +14,7 @@ cond_num_array_length = 3
 condition_number_type_array = np.array(['Low', 'Medium', 'High'])
 condition_number_type_array_length = 3
 # Choose some different randomized matrices with different random number seeds
-seednum_array_length = 50
+seednum_array_length = 5
 seednum_array = np.random.choice(10000, seednum_array_length, replace=False)
 
 # Choose the range of oversampling factor to be 1.6 to 2.5, which is specified by the LSRN paper
@@ -183,7 +183,7 @@ for cond_num_index in np.arange(cond_num_array_length):
     # Store the data of LSRN
 
     # name of csv file
-    filename = "Tuning/Oversampling Factor/Time/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_total_computational_time_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Time/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_total_computational_time_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     # writing to csv file
     with open(filename, 'w') as csvfile:
@@ -193,49 +193,49 @@ for cond_num_index in np.arange(cond_num_array_length):
         # writing the data rows
         csvwriter.writerows(lsrn_total_computational_time_matrix)
 
-    filename = "Tuning/Oversampling Factor/Time/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_precondition_time_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Time/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_precondition_time_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(lsrn_precondition_time_matrix)
 
-    filename = "Tuning/Oversampling Factor/Time/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_precondition_time_without_rand_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Time/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_precondition_time_without_rand_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(lsrn_precondition_time_without_rand_matrix)
 
-    filename = "Tuning/Oversampling Factor/Time/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_iterative_solver_time_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Time/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_iterative_solver_time_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(lsrn_iterative_solver_time_matrix)
 
-    filename = "Tuning/Oversampling Factor/Time/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_iteration_number_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Time/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_iteration_number_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(lsrn_iteration_number_matrix)
 
-    filename = "Tuning/Oversampling Factor/Flops Rate/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_total_computational_flops_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Flops Rate/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_total_computational_flops_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(lsrn_total_computational_flops_matrix)
 
-    filename = "Tuning/Oversampling Factor/Flops Rate/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_precondition_flops_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Flops Rate/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_precondition_flops_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(lsrn_precondition_flops_matrix)
 
-    filename = "Tuning/Oversampling Factor/Flops Rate/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_iterative_solver_flops_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Flops Rate/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_iterative_solver_flops_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(lsrn_iterative_solver_flops_matrix)
 
-    filename = "Tuning/Oversampling Factor/Flops Rate/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_iteration_number_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Flops Rate/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/LSRN/lsrn_iteration_number_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
@@ -243,49 +243,49 @@ for cond_num_index in np.arange(cond_num_array_length):
 
     # Store the data of Blendenpik
 
-    filename = "Tuning/Oversampling Factor/Time/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_total_computational_time_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Time/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_total_computational_time_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(riley_blen_total_computational_time_matrix)
 
-    filename = "Tuning/Oversampling Factor/Time/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_precondition_time_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Time/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_precondition_time_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(riley_blen_precondition_time_matrix)
 
-    filename = "Tuning/Oversampling Factor/Time/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_iterative_solver_time_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Time/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_iterative_solver_time_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(riley_blen_iterative_solver_time_matrix)
 
-    filename = "Tuning/Oversampling Factor/Time/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_iteration_number_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Time/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_iteration_number_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(riley_blen_iteration_number_matrix)
 
-    filename = "Tuning/Oversampling Factor/Flops Rate/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_total_computational_flops_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Flops Rate/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_total_computational_flops_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(riley_blen_total_computational_flops_matrix)
 
-    filename = "Tuning/Oversampling Factor/Flops Rate/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_precondition_flops_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Flops Rate/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_precondition_flops_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(riley_blen_precondition_flops_matrix)
 
-    filename = "Tuning/Oversampling Factor/Flops Rate/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_iterative_solver_flops_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Flops Rate/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_iterative_solver_flops_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(riley_blen_iterative_solver_flops_matrix)
 
-    filename = "Tuning/Oversampling Factor/Flops Rate/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_iteration_number_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
+    filename = "Tuning/Oversampling Factor/Flops Rate/Matrix Cond/" + condition_number_type_array[cond_num_index] + "/Blendenpik/riley_blen_iteration_number_Batch" + str(seednum_array_length) + '_Matrix_Size' + str(row_num) + '_by_' + str(col_num) + stopping_criteria + ".csv"
 
     with open(filename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
