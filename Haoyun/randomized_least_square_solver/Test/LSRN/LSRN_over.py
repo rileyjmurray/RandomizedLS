@@ -48,8 +48,8 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
     timing = {'randn': 0.0, 'mult': 0.0, 'svd': 0.0, 'iter': 0.0, 'comm': 0.0, 'all': 0.0}
     flops = {'randn': 0.0, 'mult': 0.0, 'svd': 0.0, 'iter': 0.0, 'comm': 0.0, 'all': 0.0}
 
-    rank = comm.Get_rank()
-    size = comm.Get_size()
+    # rank = comm.Get_rank()
+    # size = comm.Get_size()
 
     if m > n:  # over-determined
         s = ceil(gamma * n)
