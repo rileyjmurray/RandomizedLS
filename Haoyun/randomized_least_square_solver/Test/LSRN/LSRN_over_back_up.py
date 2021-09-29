@@ -9,7 +9,7 @@ from time import perf_counter
 from zignor import randn
 
 
-def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
+def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000, comm=MPI.COMM_WORLD):
     """
     LSRN computes the min-length solution of linear least squares via LSQR with
     randomized preconditioning
@@ -68,21 +68,20 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
             A_tilde[blk_begin:blk_end, :] = np.matmul(G, A)
             timing['mult'] += perf_counter() - tic_mult
 
-        # tic_comm = perf_counter()
-        # A_tilde = comm.reduce(A_tilde)
-        # timing['comm'] += perf_counter() - tic_comm
+        tic_comm = perf_counter()
+        A_tilde = comm.reduce(A_tilde)
+        timing['comm'] += perf_counter() - tic_comm
 
-        # if rank == 0:
-        tic_svd = perf_counter()
-        U_tilde, Sigma_tilde, VH_tilde = svd(A_tilde, False)
-        rcond = np.min([m, n]) * np.finfo(float).eps
-        r_tol = Sigma_tilde[0] * rcond
-        r = np.sum(Sigma_tilde > r_tol)
-        N = VH_tilde[:r, :].T / Sigma_tilde[:r]
-        timing['svd'] += perf_counter() - tic_svd
-
-        # else:
-        #     N = None
+        if rank == 0:
+            tic_svd = perf_counter()
+            U_tilde, Sigma_tilde, VH_tilde = svd(A_tilde, False)
+            rcond = np.min([m, n]) * np.finfo(float).eps
+            r_tol = Sigma_tilde[0] * rcond
+            r = np.sum(Sigma_tilde > r_tol)
+            N = VH_tilde[:r, :].T / Sigma_tilde[:r]
+            timing['svd'] += perf_counter() - tic_svd
+        else:
+            N = None
 
         # U_tilde, Sigma_tilde, VH_tilde = svd(A_tilde, False)
         # rcond = np.min(A.shape) * np.finfo(float).eps
@@ -91,11 +90,11 @@ def LSRN_over(A, b, tol=1e-8, gamma=2, iter_lim=1000):
         #
         # N = VH_tilde[:r, :].T / Sigma_tilde[:r]
 
-        # barrier(comm)
+        barrier(comm)
 
-        # tic_comm = perf_counter()
-        # N = comm.bcast(N)
-        # timing['comm'] += perf_counter() - tic_comm
+        tic_comm = perf_counter()
+        N = comm.bcast(N)
+        timing['comm'] += perf_counter() - tic_comm
 
         tic_iter = perf_counter()
 
