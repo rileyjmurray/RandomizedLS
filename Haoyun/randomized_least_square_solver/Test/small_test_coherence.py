@@ -2,10 +2,9 @@ from Haoyun.randomized_least_square_solver.Test.test_matrix_generator_diff_coher
     overdetermined_ls_test_matrix_generator_diff_coherence
 from time import perf_counter
 from scipy.sparse.linalg import lsqr
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over_without_mpi
 import numpy as np
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik_old import blendenpik_srct
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blen_Scipy_LSQR_old import blendenpik_srct_scipy_lsqr
+from Haoyun.randomized_least_square_solver.Test.Blendenpik import blendenpik_srct_scipy_lsqr
 from numpy.linalg import norm
 
 # Small test for observing the behavior of different randomized least square solvers
@@ -40,7 +39,7 @@ print("\tThe iteration number is:", iternum2)
 print("\tThe flag is:", flag1)
 
 t2 = perf_counter()
-x2, iternum3, flag2, r1norm1, r2norm1, anorm1, acond1, arnorm1 = LSRN_over(A, b, tol=1e-14)[:8]
+x2, iternum3, flag2, r1norm1, r2norm1, anorm1, acond1, arnorm1 = LSRN_over_without_mpi(A, b, tol=1e-14)[:8]
 # x2, iternum3, flag2 = LSRN_over(A, b, tol=1e-14)[:3]
 t3 = perf_counter() - t2
 r2 = b - A @ x2

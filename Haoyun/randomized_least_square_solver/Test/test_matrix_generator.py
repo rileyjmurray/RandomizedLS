@@ -2,7 +2,6 @@ import numpy as np
 from numpy.linalg import norm
 import random
 import math
-from scipy.sparse.linalg import lsqr
 
 
 def overdetermined_ls_test_matrix_generator(m, n, theta, coherence_type="low", added_row_count=1, seednum=123, diagonal=None,
@@ -92,12 +91,12 @@ def overdetermined_ls_test_matrix_generator(m, n, theta, coherence_type="low", a
     if min_idx != k - 1:
         diagonal[k - 1], diagonal[min_idx] = diagonal[min_idx], diagonal[k - 1]
 
-    U, _ = np.linalg.qr(np.random.standard_normal((m, n)))
+    U, _ = np.linalg.qr(np.random.normal(0, 1, (m, n)))
     if n == k:
-        V, _ = np.linalg.qr(np.random.standard_normal((n, n)))
+        V, _ = np.linalg.qr(np.random.normal(0, 1, (n, n)))
     else:
-        V_1, _ = np.linalg.qr(np.random.standard_normal((k, k)))
-        V_2, _ = np.linalg.qr(np.random.standard_normal((n - k, n - k)))
+        V_1, _ = np.linalg.qr(np.random.normal(0, 1, (k, k)))
+        V_2, _ = np.linalg.qr(np.random.normal(0, 1, (n - k, n - k)))
         V = np.concatenate(
             (np.concatenate((V_1, np.zeros([k, n - k])), axis=1), np.concatenate((np.zeros([n - k, k]), V_2), axis=1)),
             axis=0)

@@ -53,9 +53,9 @@ __all__ = ['lsqr_copy']
 
 import numpy as np
 from math import sqrt
-
 from numpy.linalg import norm
 from scipy.sparse.linalg.interface import aslinearoperator
+from Haoyun.randomized_least_square_solver.Baseline.Direct_Method import solve_ls_with_QR
 
 eps = np.finfo(np.float64).eps
 
@@ -308,19 +308,20 @@ def lsqr_copy(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
     approximate solution to the corresponding least-squares problem. `r1norm`
     contains the norm of the minimal residual that was found.
     """
+    # print("\tLSQR input A precision", A.dtype)
+    # print("\tLSQR input b precision", b.dtype)
 
     # set the arrays to store the normal equation error and residual error via iteration
-
-    relative_normal_equation_error_array = []
-    absolute_normal_equation_error_array = []
-    relative_residual_error_array = []
-    absolute_residual_error_array = []
-    relative_error_array = []
+    # absolute_normal_equation_error_list = []
+    # relative_normal_equation_error_list = []
+    # S2_stopping_criteria_error_list = []
+    # relative_residual_error_list = []
+    # relative_error_list = []
 
     # Compute the true x by direct method
     # If A is an LinearOperator, convert that to a matrix for the calculation purpose.
     matrix_A = A @ np.identity(A.shape[1])
-    x_true = np.linalg.multi_dot([np.linalg.inv(np.matmul(matrix_A.T, matrix_A)), matrix_A.T, b])
+    x_true = solve_ls_with_QR(matrix_A, b)
 
     A = aslinearoperator(A)
     b = np.atleast_1d(b)
@@ -380,11 +381,17 @@ def lsqr_copy(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         beta = bnorm.copy()
     else:
         x = np.asarray(x0)
+        ########################################
+        # This take 2 * m * n + 2 * n * r flops#
+        ########################################
         u = u - A.matvec(x)
         beta = np.linalg.norm(u)
 
     if beta > 0:
         u = (1 / beta) * u
+        ########################################
+        # This take 2 * m * n + 2 * n * r flops#
+        ########################################
         v = A.rmatvec(u)
         alfa = np.linalg.norm(v)
     else:
@@ -430,12 +437,19 @@ def lsqr_copy(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         %                beta*u  =  a*v   -  alfa*u,
         %                alfa*v  =  A'*u  -  beta*v.
         """
+        ########################################
+        # This take 2 * m * n + 2 * n * r flops#
+        ########################################
         u = A.matvec(v) - alfa * u
         beta = np.linalg.norm(u)
 
         if beta > 0:
             u = (1 / beta) * u
             anorm = sqrt(anorm ** 2 + alfa ** 2 + beta ** 2 + damp ** 2)
+
+            ########################################
+            # This take 2 * m * n + 2 * n * r flops#
+            ########################################
             v = A.rmatvec(u) - beta * v
             alfa = np.linalg.norm(v)
             if alfa > 0:
@@ -520,21 +534,20 @@ def lsqr_copy(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         # test2 is for the relative normal equation error
 
         test1 = rnorm / bnorm
-        # test2 = arnorm / (anorm * rnorm + eps)
-        test2 = arnorm / (anorm * anorm * xnorm)
+        test2 = arnorm / (anorm * rnorm + eps)
+        # test2_new = arnorm / (anorm * anorm * xnorm)
         test3 = 1 / (acond + eps)
         t1 = test1 / (1 + anorm * xnorm / bnorm)
         rtol = btol + atol * anorm * xnorm / bnorm
 
-        # store the relative/absolute normal equation error, relative/absolute residual error
-        # \and relative error into arrays.
-        relative_normal_equation_error_array.append(test2)
-        absolute_normal_equation_error_array.append(arnorm)
-        relative_residual_error_array.append(test1)
-        absolute_residual_error_array.append(rnorm)
-
-        relative_error = norm(x_true-x, 2)/norm(x_true, 2)
-        relative_error_array.append(relative_error)
+        # store the relative/absolute normal equation error, relative residual error,
+        # relative error and S2 stopping criteria into arrays.
+        # relative_normal_equation_error_list.append(test2_new)
+        # absolute_normal_equation_error_list.append(arnorm)
+        # relative_residual_error_list.append(test1)
+        # S2_stopping_criteria_error_list.append(test2)
+        # relative_error = norm(x_true-x, 2)/norm(x_true, 2)
+        # relative_error_list.append(relative_error)
 
         # relative_error_array.append()
         # The following tests guard against extremely small values of
@@ -603,6 +616,10 @@ def lsqr_copy(A, b, damp=0.0, atol=1e-8, btol=1e-8, conlim=1e8,
         print(str3 + '   ' + str4)
         print(' ')
 
-    return x, istop, itn, r1norm, r2norm, anorm, acond, arnorm, xnorm, var, relative_error_array, relative_normal_equation_error_array, \
-           relative_residual_error_array, absolute_normal_equation_error_array, absolute_residual_error_array,
+    # return x, istop, itn, r1norm, r2norm, anorm, acond, arnorm, xnorm, var, absolute_normal_equation_error_list, \
+    #        relative_normal_equation_error_list, S2_stopping_criteria_error_list, relative_residual_error_list,  \
+    #        relative_error_list
+
+
+    return x, istop, itn, r1norm, r2norm, anorm, acond, arnorm, xnorm, var
 

@@ -1,8 +1,8 @@
 from time import perf_counter
 import numpy as np
 from numpy.linalg import norm
-from Haoyun.randomized_least_square_solver.Blendenpik.Riley_Blendenpik_new import blendenpik_srct
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.Blendenpik.Riley_Blendenpik_new import blendenpik_srct
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over_without_mpi
 from Haoyun.randomized_least_square_solver.Test.test_matrix_generator import overdetermined_ls_test_matrix_generator
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
@@ -81,7 +81,7 @@ for cond_num_index in np.arange(cond_len):
 
             # LSRN
             t3 = perf_counter()
-            x2, iternum2 = LSRN_over(A, b, tol=tol, iter_lim=1000)[:2]
+            x2, iternum2 = LSRN_over_without_mpi(A, b, tol=tol, iter_lim=1000)[:2]
             t4 = perf_counter() - t3
             r2 = b - A @ x2
 

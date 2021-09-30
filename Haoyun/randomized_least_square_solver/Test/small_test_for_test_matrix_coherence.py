@@ -2,7 +2,7 @@ from time import perf_counter
 
 import numpy as np
 from numpy.linalg import norm
-from Haoyun.randomized_least_square_solver.LSRN.LSRN_over import LSRN_over
+from Haoyun.randomized_least_square_solver.Test.LSRN import LSRN_over_without_mpi
 from Haoyun.randomized_least_square_solver.Test.test_matrix_generator import \
     overdetermined_ls_test_matrix_generator
 
@@ -24,7 +24,7 @@ Q_low, _ = np.linalg.qr(A_low)
 coherence_low = max(np.sum(np.multiply(Q_low, Q_low), 1))
 
 t1_low = perf_counter()
-x1_low, iternum1_low, flag1_low, _ = LSRN_over(A_low, b_low, tol=1e-14, gamma=1.05)
+x1_low, iternum1_low, flag1_low, _ = LSRN_over_without_mpi(A_low, b_low, tol=1e-14, gamma=1.05)
 t2_low = perf_counter() - t1_low
 r1_low = b_low - A_low @ x1_low
 
@@ -54,7 +54,7 @@ Q_medium, _ = np.linalg.qr(A_medium)
 coherence_medium = max(np.sum(np.multiply(Q_medium, Q_medium), 1))
 
 t1_medium = perf_counter()
-x1_medium, iternum1_medium, flag1_medium, _ = LSRN_over(A_medium, b_medium, tol=1e-14, gamma=1.05)
+x1_medium, iternum1_medium, flag1_medium, _ = LSRN_over_without_mpi(A_medium, b_medium, tol=1e-14, gamma=1.05)
 t2_medium = perf_counter() - t1_medium
 r1_medium = b_medium - A_medium @ x1_medium
 
@@ -84,7 +84,7 @@ Q_high, _ = np.linalg.qr(A_high)
 coherence_high = max(np.sum(np.multiply(Q_high, Q_high), 1))
 
 t1_high = perf_counter()
-x1_high, iternum1_high, flag1_high, _ = LSRN_over(A_high, b_high, tol=1e-14, gamma=1.05)
+x1_high, iternum1_high, flag1_high, _ = LSRN_over_without_mpi(A_high, b_high, tol=1e-14, gamma=1.05)
 t2_high = perf_counter() - t1_high
 r1_high = b_high - A_high @ x1_high
 
